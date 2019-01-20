@@ -13,21 +13,21 @@ public:
 	static const FVector kOne;
 
 public:
-	__forceinline static FVector Cross(const FVector& a, const FVector& b);
-	__forceinline static float Dot(const FVector& a, const FVector& b);
+	__forceinline static FVector Cross(const FVector &a, const FVector &b);
+	__forceinline static float Dot(const FVector &a, const FVector &b);
 
 public:
 	__forceinline FVector(float x, float y, float z);
-	explicit __forceinline FVector(float* arr);
+	explicit __forceinline FVector(float *arr);
 
-	__forceinline FVector operator+(const FVector& vec) const;
-	__forceinline FVector operator-(const FVector& vec) const;
+	__forceinline FVector operator+(const FVector &vec) const;
+	__forceinline FVector operator-(const FVector &vec) const;
 	__forceinline FVector operator*(const float scale) const;
 	__forceinline FVector operator/(const float scale) const;
-	__forceinline bool operator==(const FVector& vec) const;
-	__forceinline bool operator!=(const FVector& vec) const;
-	__forceinline FVector operator+=(const FVector& vec);
-	__forceinline FVector operator-=(const FVector& vec);
+	__forceinline bool operator==(const FVector &vec) const;
+	__forceinline bool operator!=(const FVector &vec) const;
+	__forceinline FVector operator+=(const FVector &vec);
+	__forceinline FVector operator-=(const FVector &vec);
 	__forceinline FVector operator*=(const float scale);
 	__forceinline FVector operator/=(const float scale);
 
@@ -40,13 +40,13 @@ public:
 	__forceinline bool IsNormalize() const;
 
 public:
-	__forceinline friend std::ostream& operator<<(std::ostream& output, FVector& vec);
+	__forceinline friend std::ostream& operator<<(std::ostream &output, FVector &vec);
 };
 
 const FVector FVector::kZero(0.0f, 0.0f, 0.0f);
 const FVector FVector::kOne(1.0f, 1.0f, 1.0f);
 
-__forceinline FVector FVector::Cross(const FVector & a, const FVector & b)
+__forceinline FVector FVector::Cross(const FVector &a, const FVector &b)
 {
 	return FVector
 	(
@@ -73,14 +73,12 @@ __forceinline FVector::FVector(float x, float y, float z)
 {
 }
 
-__forceinline FVector::FVector(float * arr)
-	: x(arr[0])
-	, y(arr[1])
-	, z(arr[2])
+__forceinline FVector::FVector(float *arr)
 {
+	memcpy(this, arr, sizeof(*this));
 }
 
-__forceinline FVector FVector::operator+(const FVector & vec) const
+__forceinline FVector FVector::operator+(const FVector &vec) const
 {
 #ifdef ENABLE_SEE
 	return FVector((float*)&_mm_add_ps(_mm_load_ps(&x), _mm_load_ps(&vec.x)));
@@ -89,7 +87,7 @@ __forceinline FVector FVector::operator+(const FVector & vec) const
 #endif
 }
 
-__forceinline FVector FVector::operator-(const FVector & vec) const
+__forceinline FVector FVector::operator-(const FVector &vec) const
 {
 #ifdef ENABLE_SEE
 	return FVector((float*)&_mm_sub_ps(_mm_load_ps(&x), _mm_load_ps(&vec.x)));
@@ -117,17 +115,25 @@ __forceinline FVector FVector::operator/(const float scale) const
 #endif
 }
 
-__forceinline bool FVector::operator==(const FVector & vec) const
+__forceinline bool FVector::operator==(const FVector &vec) const
 {
+#ifdef ENABLE_SEE
+	return (_mm_movemask_ps(_mm_cmpeq_ps(_mm_load_ps(&x), _mm_load_ps(&vec.x))) & 0x7) == 0x7;
+#else
 	return x == vec.x && y == vec.y && z == vec.z;
+#endif
 }
 
-__forceinline bool FVector::operator!=(const FVector & vec) const
+__forceinline bool FVector::operator!=(const FVector &vec) const
 {
+#ifdef ENABLE_SEE
+	return (_mm_movemask_ps(_mm_cmpneq_ps(_mm_load_ps(&x), _mm_load_ps(&vec.x))) & 0x7) != 0x0;
+#else
 	return x != vec.x || y != vec.y || z != vec.z;
+#endif
 }
 
-__forceinline FVector FVector::operator+=(const FVector & vec)
+__forceinline FVector FVector::operator+=(const FVector &vec)
 {
 #ifdef ENABLE_SEE
 	Set((float*)&_mm_add_ps(_mm_load_ps(&x), _mm_load_ps(&vec.x)));
@@ -137,7 +143,7 @@ __forceinline FVector FVector::operator+=(const FVector & vec)
 	return *this;
 }
 
-__forceinline FVector FVector::operator-=(const FVector & vec)
+__forceinline FVector FVector::operator-=(const FVector &vec)
 {
 #ifdef ENABLE_SEE
 	Set((float*)&_mm_sub_ps(_mm_load_ps(&x), _mm_load_ps(&vec.x)));
@@ -173,9 +179,9 @@ __forceinline void FVector::Set(float x, float y, float z)
 	this->x = x; this->y = y; this->z = z;
 }
 
-__forceinline void FVector::Set(float * arr)
+__forceinline void FVector::Set(float *arr)
 {
-	x = arr[0]; y = arr[1]; z = arr[2];
+	memcpy(this, arr, 16);
 }
 
 __forceinline float FVector::Magnitude() const
@@ -199,7 +205,7 @@ __forceinline bool FVector::IsNormalize() const
 	return (SMath::Abs(1.0f - MagnitudeSquared()) < kThreshVectorNormalized);
 }
 
-__forceinline std::ostream & operator<<(std::ostream & output, FVector & vec)
+__forceinline std::ostream & operator<<(std::ostream &output, FVector &vec)
 {
 	output << "(" << vec.x << ", " << vec.y << ", " << vec.z << ")";
 	return output;

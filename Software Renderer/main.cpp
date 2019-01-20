@@ -1,13 +1,23 @@
 ﻿#include "vector.h"
+#include "matrix.h"
 #include <iostream>
 #include <intrin.h>
 #include <math.h>
 
-#define SHUFFLEMASK(A) ( (A) | ((A)<<2) | ((A)<<4) | ((A)<<6) )
 
 int main()
 {
-	__m128 s = _mm_set_ps(1, 2, 3, 4);
-	float* s2 = (float*)&_mm_shuffle_ps(s, s, SHUFFLEMASK(2));
-	std::cout << s2[0]<<" " << s2[1] << " " << s2[2] << " " << s2[3] << " ";
+	//FVector v(5.0f, 8.0f, 7.0f);
+	//FVector v2(5.0f, 8.0f, 7.0f);
+	////FVector v2 = v + v;
+	//bool b = v != v2;
+	//std::cout << b;
+
+	////FMatrix matrix2(new float[16]{ 0.0f,1.0f,2.0f,3.0f,4.0f,5.0f, 6.0f,7.0f,8.0f,9.0f, 10.f,11.0f,12.0f,13.0f,14.0f,15.0f });
+	////FMatrix matrix2(new float[16]{ 0.0f,1.0f,2.0f,3.0f,4.0f,5.0f, 6.0f,7.0f,8.0f,9.0f, 10.f,11.0f,12.0f,13.0f,14.0f,15.0f });
+	////FMatrix matrix2(new float[16]{ 0.0f,1.0f,2.0f,3.0f,4.0f,5.0f, 6.0f,7.0f,8.0f,9.0f, 10.f,11.0f,12.0f,13.0f,14.0f,15.0f });
+	//FMatrix matrix(new float[16]{ 0.0f,1.0f,2.0f,3.0f,2.0f,5.0f, 6.0f,7.0f,8.0f,9.0f, 10.f,11.0f,12.0f,13.0f,14.0f,15.0f });
+	//FMatrix matrix2(new float[16]{ 0.0f,2.0f,2.0f,3.0f,2.0f,5.0f, 6.0f,7.0f,8.0f,9.0f, 10.f,11.0f,12.0f,13.0f,14.0f,15.0f });
+	//bool b = matrix != matrix2;
+	//std::cout << b;
 }
