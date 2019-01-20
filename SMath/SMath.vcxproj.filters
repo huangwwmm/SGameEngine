@@ -24,5 +24,8 @@
     <ClInclude Include="macros.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="matrix.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
