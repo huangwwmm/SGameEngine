@@ -30,6 +30,12 @@
 *.exe
 *.out
 *.app
+
+# My
 /.vs
 /Debug
+/x64/Debug
 /Software Renderer/Debug
+/Software Renderer/x64/Debug
+/SMath/Debug
+/SMath/x64/Debug
