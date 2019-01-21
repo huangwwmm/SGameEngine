@@ -1,5 +1,6 @@
 ﻿#include "vector.h"
 #include "matrix.h"
+#include "ftime.h"
 #include <iostream>
 #include <intrin.h>
 #include <math.h>
@@ -11,6 +12,7 @@
 #include <fcntl.h>
 
 FILE *console_fp;
+HWND hWnd;
 
 LRESULT CALLBACK WindowProc(HWND hWnd
 	, UINT message
@@ -87,15 +89,23 @@ __forceinline void DestroyGameWindow(HWND hWnd)
 	DestroyWindow(hWnd);
 }
 
-__forceinline int GameLoop()
+__forceinline void Tick(float delta_time)
+{
+}
+
+__forceinline int InfiniteGameLoop()
 {
 	MSG msg;
+	const double dt = 1 / 30.0f;
+
+	double currentTime = kTime->GetCpuTime();
+	double accumulator = 0.0;
 
 	// Enter the infinite message loop
 	while (true)
 	{
 		// Check to see if any messages are waiting in the queue
-		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
 			// Translate the message and dispatch it to WindowProc()
 			TranslateMessage(&msg);
@@ -108,8 +118,22 @@ __forceinline int GameLoop()
 			break;
 		}
 
-		// UNDONE Time system
-		Sleep(33);
+		double newTime = kTime->GetCpuTime();
+		double frameTime = newTime - currentTime;
+		currentTime = newTime;
+
+		accumulator += frameTime;
+
+		while (accumulator >= dt)
+		{
+			accumulator -= dt;
+
+			Tick(dt);
+		}
+
+		// UNDONE Render to back buffer
+		//Render();
+		::InvalidateRect(hWnd, NULL, true);
 	}
 
 	return (int)msg.wParam;
@@ -130,10 +154,12 @@ int WINAPI WinMain(HINSTANCE hInstance
 	}
 
 	CreateConsole();
-	HWND hWnd = CreateGameWindow(hInstance, nCmdShow);
+	hWnd = CreateGameWindow(hInstance, nCmdShow);
+	kTime = new FTime();
 
-	int msg = GameLoop();
+	int msg = InfiniteGameLoop();
 
+	delete kTime;
 	DestroyGameWindow(hWnd);
 	DestroyConsole();
 	return msg;
