@@ -1,6 +1,7 @@
 ﻿#include "vector.h"
 #include "matrix.h"
 #include "ftime.h"
+#include "graphics.h"
 #include <iostream>
 #include <intrin.h>
 #include <math.h>
@@ -12,9 +13,9 @@
 #include <fcntl.h>
 
 FILE *console_fp;
-HWND hWnd;
+HWND hwnd;
 
-LRESULT CALLBACK WindowProc(HWND hWnd
+LRESULT CALLBACK WindowProc(HWND hwnd
 	, UINT message
 	, WPARAM wparam
 	, LPARAM lparam)
@@ -25,20 +26,15 @@ LRESULT CALLBACK WindowProc(HWND hWnd
 	switch (message)
 	{
 	case WM_PAINT:
-		hdc = ::BeginPaint(hWnd, &ps);
-		// UNDONE read pixel color from front buffer
-		for (int i = 0; i < 400; i++)
-		{
-			for (int j = 0; j < 50; j++)
-				SetPixel(hdc, i, j, 0x561);
-		}
-		::EndPaint(hWnd, &ps);
+		hdc = ::BeginPaint(hwnd, &ps);
+		Graphics::kInstance->Draw(hdc);
+		::EndPaint(hwnd, &ps);
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
 	default:
-		return DefWindowProc(hWnd, message, wparam, lparam);
+		return DefWindowProc(hwnd, message, wparam, lparam);
 		break;
 	}
 }
@@ -68,7 +64,8 @@ __forceinline HWND CreateGameWindow(HINSTANCE hInstance, int nCmdShow)
 		L"Sample Window Class",         // Window class
 		L"Learn to Program Windows",    // Window text
 		WS_OVERLAPPEDWINDOW,            // Window style
-		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, // Size and position
+		CW_USEDEFAULT, CW_USEDEFAULT,	// Position
+		Graphics::kInstance->GetWidth(), Graphics::kInstance->GetHeight(),   // Size
 		NULL,       // Parent window    
 		NULL,       // Menu
 		hInstance,  // Instance handle
@@ -98,7 +95,7 @@ __forceinline int InfiniteGameLoop()
 	MSG msg;
 	const double dt = 1 / 30.0f;
 
-	double currentTime = kTime->GetCpuTime();
+	double currentTime = FTime::kTime->GetCpuTime();
 	double accumulator = 0.0;
 
 	// Enter the infinite message loop
@@ -118,7 +115,7 @@ __forceinline int InfiniteGameLoop()
 			break;
 		}
 
-		double newTime = kTime->GetCpuTime();
+		double newTime = FTime::kTime->GetCpuTime();
 		double frameTime = newTime - currentTime;
 		currentTime = newTime;
 
@@ -133,7 +130,7 @@ __forceinline int InfiniteGameLoop()
 
 		// UNDONE Render to back buffer
 		//Render();
-		::InvalidateRect(hWnd, NULL, true);
+		::InvalidateRect(hwnd, NULL, true);
 	}
 
 	return (int)msg.wParam;
@@ -144,23 +141,16 @@ int WINAPI WinMain(HINSTANCE hInstance
 	, LPSTR lpCmdLine
 	, int nCmdShow)
 {
-	// TEST Is fbxsdk linked success?
-	{
-		FbxManager* mManager = FbxManager::Create();
-		FbxIOSettings* ios = FbxIOSettings::Create(mManager, IOSROOT);
-		ios->SetBoolProp(IMP_ANIMATION, false);
-		ios->SetBoolProp(IMP_SETLOCKEDATTRIB, false);
-		mManager->SetIOSettings(ios);
-	}
-
 	CreateConsole();
-	hWnd = CreateGameWindow(hInstance, nCmdShow);
-	kTime = new FTime();
+	FTime::Initialize();
+	Graphics::Initialize(600, 480);
+	hwnd = CreateGameWindow(hInstance, nCmdShow);
 
 	int msg = InfiniteGameLoop();
 
-	delete kTime;
-	DestroyGameWindow(hWnd);
+	DestroyGameWindow(hwnd);
+	Graphics::Destroy();
+	FTime::Destroy();
 	DestroyConsole();
 	return msg;
 }

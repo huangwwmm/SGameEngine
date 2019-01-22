@@ -18,12 +18,21 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="graphics.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ftime.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vertex.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="ftime.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
