@@ -2,8 +2,8 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <FBXSDK_ROOT>D:\work\C++\Software-Renderer\FBX SDK\</FBXSDK_ROOT>
-    <FBXSDK_LIB_ROOT>D:\work\C++\Software-Renderer\FBX SDK\lib\</FBXSDK_LIB_ROOT>
+    <FBXSDK_ROOT>$(SolutionDir)FBX SDK\</FBXSDK_ROOT>
+    <FBXSDK_LIB_ROOT>$(SolutionDir)FBX SDK\lib\</FBXSDK_LIB_ROOT>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />
