@@ -34,10 +34,10 @@
 # My
 /.vs
 /Debug
-/x64/Debug
+/x64
 /Software Renderer/Debug
-/Software Renderer/x64/Debug
+/Software Renderer/x64
 /SMath/Debug
-/SMath/x64/Debug
+/SMath/x64
 /FBX SDK/include
 /FBX SDK/lib
