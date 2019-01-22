@@ -1,15 +1,15 @@
 #include "ftime.h"
 
-FTime* FTime::kTime = nullptr;
+FTime* FTime::kInstance = nullptr;
 
 void FTime::Initialize()
 {
-	kTime = new FTime();
+	kInstance = new FTime();
 }
 
 void FTime::Destroy()
 {
-	delete kTime;
+	delete kInstance;
 }
 
 FTime::FTime()

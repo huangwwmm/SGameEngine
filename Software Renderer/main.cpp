@@ -20,23 +20,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd
 	, WPARAM wparam
 	, LPARAM lparam)
 {
-	PAINTSTRUCT ps;
-	HDC hdc;
-
 	switch (message)
 	{
-	case WM_PAINT:
-		hdc = ::BeginPaint(hwnd, &ps);
-		Graphics::kInstance->Draw(hdc);
-		::EndPaint(hwnd, &ps);
-		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
-	default:
-		return DefWindowProc(hwnd, message, wparam, lparam);
-		break;
 	}
+
+	return DefWindowProc(hwnd, message, wparam, lparam);
 }
 
 __forceinline void CreateConsole()
@@ -50,42 +41,6 @@ __forceinline void DestroyConsole()
 	fclose(console_fp);
 }
 
-__forceinline HWND CreateGameWindow(HINSTANCE hInstance, int nCmdShow)
-{
-	WNDCLASS wc = { };
-	wc.lpfnWndProc = WindowProc;
-	wc.hInstance = hInstance;
-	wc.lpszClassName = L"Sample Window Class";
-	RegisterClass(&wc);
-
-	// Create the window.
-	HWND hWnd = CreateWindowEx(
-		0,                              // Optional window styles.
-		L"Sample Window Class",         // Window class
-		L"Learn to Program Windows",    // Window text
-		WS_OVERLAPPEDWINDOW,            // Window style
-		CW_USEDEFAULT, CW_USEDEFAULT,	// Position
-		Graphics::kInstance->GetWidth(), Graphics::kInstance->GetHeight(),   // Size
-		NULL,       // Parent window    
-		NULL,       // Menu
-		hInstance,  // Instance handle
-		NULL        // Additional application data
-	);
-
-	if (hWnd == NULL)
-	{
-		// UNDONE Need debug library
-	}
-
-	ShowWindow(hWnd, nCmdShow);
-	return hWnd;
-}
-
-__forceinline void DestroyGameWindow(HWND hWnd)
-{
-	DestroyWindow(hWnd);
-}
-
 __forceinline void Tick(float delta_time)
 {
 }
@@ -95,7 +50,7 @@ __forceinline int InfiniteGameLoop()
 	MSG msg;
 	const double dt = 1 / 30.0f;
 
-	double currentTime = FTime::kTime->GetCpuTime();
+	double currentTime = FTime::kInstance->GetCpuTime();
 	double accumulator = 0.0;
 
 	// Enter the infinite message loop
@@ -115,7 +70,7 @@ __forceinline int InfiniteGameLoop()
 			break;
 		}
 
-		double newTime = FTime::kTime->GetCpuTime();
+		double newTime = FTime::kInstance->GetCpuTime();
 		double frameTime = newTime - currentTime;
 		currentTime = newTime;
 
@@ -129,8 +84,7 @@ __forceinline int InfiniteGameLoop()
 		}
 
 		// UNDONE Render to back buffer
-		//Render();
-		::InvalidateRect(hwnd, NULL, true);
+		Graphics::kInstance->Render();
 	}
 
 	return (int)msg.wParam;
@@ -143,12 +97,10 @@ int WINAPI WinMain(HINSTANCE hInstance
 {
 	CreateConsole();
 	FTime::Initialize();
-	Graphics::Initialize(600, 480);
-	hwnd = CreateGameWindow(hInstance, nCmdShow);
+	Graphics::Initialize(hInstance, nCmdShow, WindowProc);
 
 	int msg = InfiniteGameLoop();
 
-	DestroyGameWindow(hwnd);
 	Graphics::Destroy();
 	FTime::Destroy();
 	DestroyConsole();

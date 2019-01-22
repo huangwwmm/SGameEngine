@@ -1,27 +1,20 @@
 #pragma once
+#include "ftime.h"
 #include <windows.h>
-
+#include <iostream>
+#include <wrl/client.h>
+#include <d3d11_2.h>
+#include <d3dcompiler.h>
+#include <directxmath.h>
+#include <directxcolors.h>
 class Graphics
 {
 public:
 	static Graphics *kInstance;
 
 public:
-	static void Initialize(int width, int height);
+	static void Initialize(HINSTANCE hinstance, int ncmdshow, WNDPROC lpfn_wnd_proc);
 	static void Destroy();
-
-public:
-	__forceinline void Draw(HDC &hdc) const
-	{
-		double *front_buffer = GetFrontBuffer();
-		for (int i_height = 0; i_height < height; i_height++)
-		{
-			for (int i_width = 0; i_width < width; i_width++)
-			{
-				SetPixel(hdc, i_width, i_height, front_buffer[i_height * height + width]);
-			}
-		}
-	}
 
 public:
 	__forceinline int GetWidth() const
@@ -44,6 +37,16 @@ public:
 		front_buffer_index ^= 1;
 	}
 
+public:
+	void Render();
+
+private:
+	void CreateGameWindow(HINSTANCE hinstance, int ncmdshow, WNDPROC lpfn_wnd_proc);
+	void DestroyGameWindow();
+	void InitializeD3DDevice();
+	void DestroyD3DDevice();
+	void CompileShaderFromFile(WCHAR * file_name, LPCSTR entry_point, LPCSTR shader_model, ID3DBlob ** blob_out);
+
 private:
 	__forceinline double* GetFrontBuffer() const
 	{
@@ -63,4 +66,28 @@ private:
 	// Equal width * height
 	int pixel_count;
 	int front_buffer_index;
+
+	HWND hwnd = nullptr;
+
+#pragma region For D3D
+	D3D_DRIVER_TYPE d3d_driver_type = D3D_DRIVER_TYPE_NULL;
+	D3D_FEATURE_LEVEL d3d_feature_level = D3D_FEATURE_LEVEL_11_0;
+	ID3D11Device *d3d_device = nullptr;
+	ID3D11Device *d3d_device_sc = nullptr;
+	ID3D11DeviceContext *d3d_device_context = nullptr; 
+	ID3D11DeviceContext *d3d_device_context_sc = nullptr; 
+	IDXGISwapChain *d3d_swap_chain = nullptr;
+	IDXGISwapChain1 *d3d_swap_chain_sc = nullptr;
+	ID3D11RenderTargetView *d3d_render_target_view = nullptr;
+	ID3D11VertexShader *d3d_vertex_shader = nullptr;
+	ID3D11PixelShader *d3d_pixel_shader = nullptr;
+	ID3D11InputLayout *d3d_vertex_layout = nullptr;
+	ID3D11Buffer *d3d_vertex_buffer = nullptr;
+#pragma endregion
+
+private:
+	struct SimpleVertex
+	{
+		DirectX::XMFLOAT3 Pos;
+	};
 };

@@ -4,7 +4,7 @@
 struct FTime
 {
 public:
-	static FTime *kTime;
+	static FTime *kInstance;
 
 private:
 	double performance_count2millisecond;
