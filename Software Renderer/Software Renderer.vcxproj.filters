@@ -27,6 +27,9 @@
     <ClCompile Include="ftime.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="fdebug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vertex.h">
@@ -39,6 +42,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fdebug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

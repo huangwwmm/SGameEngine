@@ -3,16 +3,12 @@
 
 struct FTime
 {
-public:
-	static FTime *kInstance;
-
 private:
 	double performance_count2millisecond;
 	LARGE_INTEGER time_cache;
 
 public:
-	static void Initialize();
-	static void Destroy();
+	static FTime *GetInstance();
 
 private:
 	FTime();

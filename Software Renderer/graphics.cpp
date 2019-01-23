@@ -1,7 +1,4 @@
 #include "graphics.h"
-#include "resource.h"
-#include <cstring>
-#include <winerror.h>
 
 Graphics* Graphics::kInstance = nullptr;
 
@@ -54,11 +51,7 @@ void Graphics::CreateGameWindow(HINSTANCE hinstance, int ncmdshow, WNDPROC lpfn_
 	wcex.lpszMenuName = nullptr;
 	wcex.lpszClassName = L"SSSGameEngineClass";
 	wcex.hIconSm = LoadIcon(wcex.hInstance, (LPCTSTR)IDI_ICON1);
-	if (!RegisterClassEx(&wcex))
-	{
-		// UNDONE Assert
-		return;
-	}
+	RegisterClassEx(&wcex);
 
 	// Create the window
 	hwnd = CreateWindow(L"SSSGameEngineClass", // Window class
@@ -139,11 +132,7 @@ void Graphics::InitializeD3DDevice()
 			break;
 		}
 	}
-	if (FAILED(hr))
-	{
-		// UNDONE Assert
-		return;
-	}
+	ASSERT_HRESULT(hr);
 
 	// Obtain DXGI factory from device (since we used nullptr for pAdapter above)
 	IDXGIFactory1* dxgi_factory = nullptr;
@@ -162,11 +151,7 @@ void Graphics::InitializeD3DDevice()
 			dxgi_device->Release();
 		}
 	}
-	if (FAILED(hr))
-	{
-		// UNDONE Assert
-		return;
-	}
+	ASSERT_HRESULT(hr);
 
 	// Create swap chain
 	IDXGIFactory2* dxgi_factory_swapchain = nullptr;
@@ -221,29 +206,16 @@ void Graphics::InitializeD3DDevice()
 	// Note this tutorial doesn't handle full-screen swapchains so we block the ALT+ENTER shortcut
 	dxgi_factory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER);
 	dxgi_factory->Release();
-
-	if (FAILED(hr))
-	{
-		// UNDONE Assert
-		return;
-	}
+	ASSERT_HRESULT(hr);
 
 	// Create a render target view
 	ID3D11Texture2D* back_buffer = nullptr;
 	hr = d3d_swap_chain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&back_buffer));
-	if (FAILED(hr))
-	{
-		// UNDONE Assert
-		return;
-	}
+	ASSERT_HRESULT(hr);
 
 	hr = d3d_device->CreateRenderTargetView(back_buffer, nullptr, &d3d_render_target_view);
 	back_buffer->Release();
-	if (FAILED(hr))
-	{
-		// UNDONE Assert
-		return;
-	}
+	ASSERT_HRESULT(hr);
 
 	d3d_device_context->OMSetRenderTargets(1, &d3d_render_target_view, nullptr);
 
@@ -263,11 +235,7 @@ void Graphics::InitializeD3DDevice()
 
 	// Create the vertex shader
 	hr = d3d_device->CreateVertexShader(vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), nullptr, &d3d_vertex_shader);
-	if (FAILED(hr))
-	{
-		// UNDONE Assert
-		return;
-	}
+	ASSERT_HRESULT(hr);
 
 	// Create the Texture
 	D3D11_TEXTURE2D_DESC texture2d_desc;
@@ -284,11 +252,7 @@ void Graphics::InitializeD3DDevice()
 
 	ID3D11Texture2D *texture2d = NULL;
 	hr = d3d_device->CreateTexture2D(&texture2d_desc, NULL, &texture2d);
-	if (FAILED(hr))
-	{
-		// UNDONE Assert
-		return;
-	}
+	ASSERT_HRESULT(hr);
 
 	// Create shader resource view from texture2d
 	D3D11_SHADER_RESOURCE_VIEW_DESC resource_view_desc;
@@ -298,11 +262,7 @@ void Graphics::InitializeD3DDevice()
 	resource_view_desc.Texture2D.MipLevels = 1;
 
 	hr = d3d_device->CreateShaderResourceView(texture2d, &resource_view_desc, &d3d_texture_rv);
-	if (FAILED(hr))
-	{
-		// UNDONE Assert
-		return;
-	}
+	ASSERT_HRESULT(hr);
 
 	// Create the sample state
 	D3D11_SAMPLER_DESC sampler_desc;
@@ -315,11 +275,7 @@ void Graphics::InitializeD3DDevice()
 	sampler_desc.MinLOD = 0;
 	sampler_desc.MaxLOD = D3D11_FLOAT32_MAX;
 	hr = d3d_device->CreateSamplerState(&sampler_desc, &d3d_sampler_state);
-	if (FAILED(hr))
-	{
-		// UNDONE Assert
-		return;
-	}
+	ASSERT_HRESULT(hr);
 
 	// Define the input layout
 	D3D11_INPUT_ELEMENT_DESC layout[] =
@@ -333,11 +289,7 @@ void Graphics::InitializeD3DDevice()
 	hr = d3d_device->CreateInputLayout(layout, num_elements, vs_blob->GetBufferPointer(),
 		vs_blob->GetBufferSize(), &d3d_vertex_layout);
 	vs_blob->Release();
-	if (FAILED(hr))
-	{
-		// UNDONE Assert
-		return;
-	}
+	ASSERT_HRESULT(hr);
 
 	// Set the input layout
 	d3d_device_context->IASetInputLayout(d3d_vertex_layout);
@@ -349,11 +301,7 @@ void Graphics::InitializeD3DDevice()
 	// Create the pixel shader
 	hr = d3d_device->CreatePixelShader(ps_load->GetBufferPointer(), ps_load->GetBufferSize(), nullptr, &d3d_pixel_shader);
 	ps_load->Release();
-	if (FAILED(hr))
-	{
-		// UNDONE Assert
-		return;
-	}
+	ASSERT_HRESULT(hr);
 
 	// Create vertex buffer
 	SimpleVertex vertices[] =
@@ -380,11 +328,7 @@ void Graphics::InitializeD3DDevice()
 	vertex_buffer_data.SysMemSlicePitch = 0;
 
 	hr = d3d_device->CreateBuffer(&vertex_buffer_desc, &vertex_buffer_data, &d3d_vertex_buffer);
-	if (FAILED(hr))
-	{
-		// UNDONE Assert
-		return;
-	}
+	ASSERT_HRESULT(hr);
 
 	// Set vertex buffer
 	UINT stride = sizeof(SimpleVertex);
