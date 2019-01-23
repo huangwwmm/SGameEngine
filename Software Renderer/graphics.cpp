@@ -27,7 +27,13 @@ void Graphics::Render()
 	// Render a triangle
 	d3d_device_context->VSSetShader(d3d_vertex_shader, nullptr, 0);
 	d3d_device_context->PSSetShader(d3d_pixel_shader, nullptr, 0);
-	d3d_device_context->Draw(3, 0);
+
+	//d3d_device_context->Map(constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0);
+	//d3d_device_context->Unmap(constBuffer, 0);
+
+	d3d_device_context->PSSetShaderResources(0, 1, &d3d_texture_rv);
+	d3d_device_context->PSSetSamplers(0, 1, &d3d_sampler_state);
+	d3d_device_context->Draw(6, 0);
 
 	d3d_swap_chain->Present(0, 0);
 }
@@ -263,10 +269,63 @@ void Graphics::InitializeD3DDevice()
 		return;
 	}
 
+	// Create the Texture
+	D3D11_TEXTURE2D_DESC texture2d_desc;
+	ZeroMemory(&texture2d_desc, sizeof(texture2d_desc));
+	texture2d_desc.Width = width;
+	texture2d_desc.Height = height;
+	texture2d_desc.MipLevels = texture2d_desc.ArraySize = 1;
+	texture2d_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	texture2d_desc.SampleDesc.Count = 1;
+	texture2d_desc.Usage = D3D11_USAGE_DYNAMIC;
+	texture2d_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	texture2d_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	texture2d_desc.MiscFlags = 0;
+
+	ID3D11Texture2D *texture2d = NULL;
+	hr = d3d_device->CreateTexture2D(&texture2d_desc, NULL, &texture2d);
+	if (FAILED(hr))
+	{
+		// UNDONE Assert
+		return;
+	}
+
+	// Create shader resource view from texture2d
+	D3D11_SHADER_RESOURCE_VIEW_DESC resource_view_desc;
+	ZeroMemory(&resource_view_desc, sizeof(resource_view_desc));
+	resource_view_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	resource_view_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	resource_view_desc.Texture2D.MipLevels = 1;
+
+	hr = d3d_device->CreateShaderResourceView(texture2d, &resource_view_desc, &d3d_texture_rv);
+	if (FAILED(hr))
+	{
+		// UNDONE Assert
+		return;
+	}
+
+	// Create the sample state
+	D3D11_SAMPLER_DESC sampler_desc;
+	ZeroMemory(&sampler_desc, sizeof(sampler_desc));
+	sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampler_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sampler_desc.MinLOD = 0;
+	sampler_desc.MaxLOD = D3D11_FLOAT32_MAX;
+	hr = d3d_device->CreateSamplerState(&sampler_desc, &d3d_sampler_state);
+	if (FAILED(hr))
+	{
+		// UNDONE Assert
+		return;
+	}
+
 	// Define the input layout
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 	UINT num_elements = ARRAYSIZE(layout);
 
@@ -299,21 +358,28 @@ void Graphics::InitializeD3DDevice()
 	// Create vertex buffer
 	SimpleVertex vertices[] =
 	{
-		DirectX::XMFLOAT3(0.0, 0.5f, 0.5f),
-		DirectX::XMFLOAT3(0.5f, -0.5f, 0.5f),
-		DirectX::XMFLOAT3(-0.5f, -0.5f, 0.5f),
+		DirectX::XMFLOAT3(-1.0, 1.0f, 0.0f),
+		DirectX::XMFLOAT3(1.0f, -1.0f, 0.0f),
+		DirectX::XMFLOAT3(-1.0f, -1.0f, 0.0f),
+		DirectX::XMFLOAT3(-1.0, 1.0f, 0.0f),
+		DirectX::XMFLOAT3(1.0f, 1.0f, 0.0f),
+		DirectX::XMFLOAT3(1.0f, -1.0f, 0.0f),
 	};
 
-	D3D11_BUFFER_DESC bd;
-	ZeroMemory(&bd, sizeof(bd));
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof(SimpleVertex) * 3;
-	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bd.CPUAccessFlags = 0;
-	D3D11_SUBRESOURCE_DATA InitData;
-	ZeroMemory(&InitData, sizeof(InitData));
-	InitData.pSysMem = vertices;
-	hr = d3d_device->CreateBuffer(&bd, &InitData, &d3d_vertex_buffer);
+	D3D11_BUFFER_DESC vertex_buffer_desc = { 0 };
+	vertex_buffer_desc.ByteWidth = sizeof(SimpleVertex) * ARRAYSIZE(vertices);
+	vertex_buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
+	vertex_buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vertex_buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	vertex_buffer_desc.MiscFlags = 0;
+	vertex_buffer_desc.StructureByteStride = 0;
+
+	D3D11_SUBRESOURCE_DATA vertex_buffer_data = { 0 };
+	vertex_buffer_data.pSysMem = vertices;
+	vertex_buffer_data.SysMemPitch = 0;
+	vertex_buffer_data.SysMemSlicePitch = 0;
+
+	hr = d3d_device->CreateBuffer(&vertex_buffer_desc, &vertex_buffer_data, &d3d_vertex_buffer);
 	if (FAILED(hr))
 	{
 		// UNDONE Assert
@@ -333,6 +399,8 @@ void Graphics::DestroyD3DDevice()
 {
 	if (d3d_device_context) d3d_device_context->ClearState();
 
+	if (d3d_sampler_state) d3d_sampler_state->Release();
+	if (d3d_texture_rv) d3d_texture_rv->Release();
 	if (d3d_render_target_view) d3d_render_target_view->Release();
 	if (d3d_swap_chain_sc) d3d_swap_chain_sc->Release();
 	if (d3d_swap_chain) d3d_swap_chain->Release();

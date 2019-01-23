@@ -7,6 +7,7 @@
 #include <d3dcompiler.h>
 #include <directxmath.h>
 #include <directxcolors.h>
+
 class Graphics
 {
 public:
@@ -83,6 +84,8 @@ private:
 	ID3D11PixelShader *d3d_pixel_shader = nullptr;
 	ID3D11InputLayout *d3d_vertex_layout = nullptr;
 	ID3D11Buffer *d3d_vertex_buffer = nullptr;
+	ID3D11ShaderResourceView* d3d_texture_rv = nullptr;
+	ID3D11SamplerState* d3d_sampler_state = nullptr;
 #pragma endregion
 
 private:
