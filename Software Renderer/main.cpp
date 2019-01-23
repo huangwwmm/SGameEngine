@@ -68,7 +68,6 @@ __forceinline int InfiniteGameLoop()
 			Tick(dt);
 		}
 
-		// UNDONE Render to back buffer
 		Graphics::kInstance->Render();
 	}
 

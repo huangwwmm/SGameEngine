@@ -19,18 +19,40 @@ void Graphics::Destroy()
 
 void Graphics::Render()
 {
-	d3d_device_context->ClearRenderTargetView(d3d_render_target_view, DirectX::Colors::MidnightBlue);
+	int* back_buffer = GetBackBuffer();
+
+	// TEST
+	for (int i_height = 0; i_height < height - 1; i_height++)
+	{
+		for (int i_width = 0; i_width < width; i_width++)
+		{
+			back_buffer[i_height * width + i_width] = 0xFFFFFF;
+		}
+	}
+
+	DrawWithD3D();
+}
+
+void Graphics::DrawWithD3D()
+{
+	d3d_device_context->ClearRenderTargetView(d3d_render_target_view, DirectX::Colors::Black);
 
 	// Render a triangle
 	d3d_device_context->VSSetShader(d3d_vertex_shader, nullptr, 0);
 	d3d_device_context->PSSetShader(d3d_pixel_shader, nullptr, 0);
 
-	//d3d_device_context->Map(constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0);
-	//d3d_device_context->Unmap(constBuffer, 0);
+	D3D11_MAPPED_SUBRESOURCE resource;
+	UINT subresource = D3D11CalcSubresource(0, 0, 0);
+	HRESULT hr = d3d_device_context->Map(d3d_texture2d, subresource, D3D11_MAP_WRITE_DISCARD, 0, &resource);
+	ASSERT_HRESULT(hr);
+
+	SwapBuffer();
+	memcpy(resource.pData, GetFrontBuffer(), pixel_count * sizeof(int));
+	d3d_device_context->Unmap(d3d_texture2d, subresource);
 
 	d3d_device_context->PSSetShaderResources(0, 1, &d3d_texture_rv);
 	d3d_device_context->PSSetSamplers(0, 1, &d3d_sampler_state);
-	d3d_device_context->Draw(6, 0);
+	d3d_device_context->DrawIndexed(6, 0, 0);
 
 	d3d_swap_chain->Present(0, 0);
 }
@@ -250,8 +272,7 @@ void Graphics::InitializeD3DDevice()
 	texture2d_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	texture2d_desc.MiscFlags = 0;
 
-	ID3D11Texture2D *texture2d = NULL;
-	hr = d3d_device->CreateTexture2D(&texture2d_desc, NULL, &texture2d);
+	hr = d3d_device->CreateTexture2D(&texture2d_desc, NULL, &d3d_texture2d);
 	ASSERT_HRESULT(hr);
 
 	// Create shader resource view from texture2d
@@ -261,7 +282,7 @@ void Graphics::InitializeD3DDevice()
 	resource_view_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	resource_view_desc.Texture2D.MipLevels = 1;
 
-	hr = d3d_device->CreateShaderResourceView(texture2d, &resource_view_desc, &d3d_texture_rv);
+	hr = d3d_device->CreateShaderResourceView(d3d_texture2d, &resource_view_desc, &d3d_texture_rv);
 	ASSERT_HRESULT(hr);
 
 	// Create the sample state
@@ -309,23 +330,17 @@ void Graphics::InitializeD3DDevice()
 		DirectX::XMFLOAT3(-1.0, 1.0f, 0.0f),
 		DirectX::XMFLOAT3(1.0f, -1.0f, 0.0f),
 		DirectX::XMFLOAT3(-1.0f, -1.0f, 0.0f),
-		DirectX::XMFLOAT3(-1.0, 1.0f, 0.0f),
 		DirectX::XMFLOAT3(1.0f, 1.0f, 0.0f),
-		DirectX::XMFLOAT3(1.0f, -1.0f, 0.0f),
 	};
 
 	D3D11_BUFFER_DESC vertex_buffer_desc = { 0 };
 	vertex_buffer_desc.ByteWidth = sizeof(SimpleVertex) * ARRAYSIZE(vertices);
-	vertex_buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
+	vertex_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
 	vertex_buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertex_buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	vertex_buffer_desc.MiscFlags = 0;
-	vertex_buffer_desc.StructureByteStride = 0;
+	vertex_buffer_desc.CPUAccessFlags = 0;
 
 	D3D11_SUBRESOURCE_DATA vertex_buffer_data = { 0 };
 	vertex_buffer_data.pSysMem = vertices;
-	vertex_buffer_data.SysMemPitch = 0;
-	vertex_buffer_data.SysMemSlicePitch = 0;
 
 	hr = d3d_device->CreateBuffer(&vertex_buffer_desc, &vertex_buffer_data, &d3d_vertex_buffer);
 	ASSERT_HRESULT(hr);
@@ -335,6 +350,23 @@ void Graphics::InitializeD3DDevice()
 	UINT offset = 0;
 	d3d_device_context->IASetVertexBuffers(0, 1, &d3d_vertex_buffer, &stride, &offset);
 
+	// Create index buffer
+	WORD indices[] =
+	{
+		0,1,2,
+		0,3,1
+	};
+	
+	vertex_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
+	vertex_buffer_desc.ByteWidth = sizeof(WORD) * ARRAYSIZE(indices);        // 36 vertices needed for 12 triangles in a triangle list
+	vertex_buffer_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	vertex_buffer_desc.CPUAccessFlags = 0;
+	vertex_buffer_data.pSysMem = indices;
+	hr = d3d_device->CreateBuffer(&vertex_buffer_desc, &vertex_buffer_data, &d3d_index_buffer);
+	ASSERT_HRESULT(hr);
+	// Set index buffer
+	d3d_device_context->IASetIndexBuffer(d3d_index_buffer, DXGI_FORMAT_R16_UINT, 0);
+
 	// Set primitive topology
 	d3d_device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
@@ -343,6 +375,7 @@ void Graphics::DestroyD3DDevice()
 {
 	if (d3d_device_context) d3d_device_context->ClearState();
 
+	if (d3d_texture2d) d3d_texture2d->Release();
 	if (d3d_sampler_state) d3d_sampler_state->Release();
 	if (d3d_texture_rv) d3d_texture_rv->Release();
 	if (d3d_render_target_view) d3d_render_target_view->Release();
@@ -388,8 +421,8 @@ Graphics::Graphics(int width, int height)
 	pixel_count = width * height;
 	front_buffer_index = 1;
 
-	buffers = new double[pixel_count * 2];
-	memset(buffers, 0x64557, sizeof(double) * pixel_count * 2);
+	buffers = new int[pixel_count * 2];
+	memset(buffers, 0, sizeof(int) * pixel_count * 2);
 }
 
 Graphics::~Graphics()

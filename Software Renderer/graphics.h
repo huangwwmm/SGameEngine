@@ -19,7 +19,11 @@ public:
 private:
 	// Color[pixel_count * 2]
 	// It contains tow buffers, buffer0[pixel_count:0] and buffer1[pixel_count*2:pixel_count]
-	double *buffers;
+	// Q: Why is the color int type?
+	// A: Because the format of the texture2d is DXGI_FORMAT_R8G8B8A8_UNORM
+	//		8+8+8+8=32
+	// Note: I did not consider the case where int is not 32-bit and and the texture2d uses other formats.
+	int *buffers;
 	int width;
 	int height;
 	// Equal width * height
@@ -42,8 +46,10 @@ private:
 	ID3D11PixelShader *d3d_pixel_shader = nullptr;
 	ID3D11InputLayout *d3d_vertex_layout = nullptr;
 	ID3D11Buffer *d3d_vertex_buffer = nullptr;
+	ID3D11Buffer *d3d_index_buffer = nullptr;
 	ID3D11ShaderResourceView* d3d_texture_rv = nullptr;
 	ID3D11SamplerState* d3d_sampler_state = nullptr;
+	ID3D11Texture2D *d3d_texture2d = nullptr;
 #pragma endregion
 
 
@@ -62,16 +68,6 @@ public:
 		return height;
 	}
 
-	__forceinline double* GetBackBuffer() const
-	{
-		return &buffers[(!front_buffer_index ^ 1) * pixel_count];
-	}
-
-	__forceinline void SwapBuffer()
-	{
-		front_buffer_index ^= 1;
-	}
-
 public:
 	void Render();
 
@@ -81,11 +77,22 @@ private:
 	void InitializeD3DDevice();
 	void DestroyD3DDevice();
 	void CompileShaderFromFile(WCHAR * file_name, LPCSTR entry_point, LPCSTR shader_model, ID3DBlob ** blob_out);
+	void DrawWithD3D();
 
 private:
-	__forceinline double* GetFrontBuffer() const
+	__forceinline int* GetFrontBuffer() const
 	{
 		return &buffers[front_buffer_index * pixel_count];
+	}
+
+	__forceinline int* GetBackBuffer() const
+	{
+		return &buffers[(front_buffer_index ^ 1) * pixel_count];
+	}
+
+	__forceinline void SwapBuffer()
+	{
+		front_buffer_index ^= 1;
 	}
 
 private:
