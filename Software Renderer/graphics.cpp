@@ -20,13 +20,20 @@ void Graphics::Destroy()
 void Graphics::Render()
 {
 	int* back_buffer = GetBackBuffer();
-
+	
 	// TEST
-	for (int i_height = 0; i_height < height - 1; i_height++)
+	int r = 255;
+	int g = 0;
+	int b = 0;
+	int a = 255;
+	for (int i_height = 0; i_height < height; i_height++)
 	{
+		r--;
+		if (r < 0) r = 255;
 		for (int i_width = 0; i_width < width; i_width++)
 		{
-			back_buffer[i_height * width + i_width] = 0xFFFFFF;
+			int color = r | (g << 8) | (b << 16) | (a << 24);
+			back_buffer[i_height * width + i_width] = color;
 		}
 	}
 
@@ -289,9 +296,9 @@ void Graphics::InitializeD3DDevice()
 	D3D11_SAMPLER_DESC sampler_desc;
 	ZeroMemory(&sampler_desc, sizeof(sampler_desc));
 	sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampler_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	sampler_desc.MinLOD = 0;
 	sampler_desc.MaxLOD = D3D11_FLOAT32_MAX;
@@ -327,10 +334,10 @@ void Graphics::InitializeD3DDevice()
 	// Create vertex buffer
 	SimpleVertex vertices[] =
 	{
-		DirectX::XMFLOAT3(-1.0, 1.0f, 0.0f),
-		DirectX::XMFLOAT3(1.0f, -1.0f, 0.0f),
-		DirectX::XMFLOAT3(-1.0f, -1.0f, 0.0f),
-		DirectX::XMFLOAT3(1.0f, 1.0f, 0.0f),
+		{ DirectX::XMFLOAT3(-1.0, 1.0f, 0.0f),  DirectX::XMFLOAT2(0.0f, 0.0f) },
+		{ DirectX::XMFLOAT3(1.0f, -1.0f, 0.0f),  DirectX::XMFLOAT2(1.0f, 1.0f) },
+		{ DirectX::XMFLOAT3(-1.0f, -1.0f, 0.0f),  DirectX::XMFLOAT2(0.0f, 1.0f) },
+		{ DirectX::XMFLOAT3(1.0f, 1.0f, 0.0f),  DirectX::XMFLOAT2(1.0f, 0.0f) },
 	};
 
 	D3D11_BUFFER_DESC vertex_buffer_desc = { 0 };

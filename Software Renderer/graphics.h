@@ -103,5 +103,6 @@ private:
 	struct SimpleVertex
 	{
 		DirectX::XMFLOAT3 Pos;
+		DirectX::XMFLOAT2 Tex;
 	};
 };
