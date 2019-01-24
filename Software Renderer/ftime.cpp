@@ -1,6 +1,6 @@
 #include "ftime.h"
 
-FTime * FTime::GetInstance()
+FTime *FTime::GetInstance()
 {
 	static FTime kInstance;
 	return &kInstance;

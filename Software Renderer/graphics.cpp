@@ -26,12 +26,7 @@ void Graphics::Render()
 	int g = 0;
 	int b = 0;
 	int a = 255;
-	static int s = 0;
-	s = s ^ 1;
-	r = s ? 255 : 0;
-	g = s ? 0 : 255;
 
-	while (WaitForSingleObject(d3d_thread_semaphore, 0L) != WAIT_OBJECT_0);
 	for (int i_height = 0; i_height < height; i_height++)
 	{
 		for (int i_width = 0; i_width < width; i_width++)
@@ -40,39 +35,32 @@ void Graphics::Render()
 			back_buffer[i_height * width + i_width] = color;
 		}
 	}
-	ReleaseSemaphore(d3d_thread_semaphore, 1, nullptr);
+	SwapBuffer();
 
-	kInstance->SwapBuffer();
+	DrawWithD3D();
 }
 
-DWORD WINAPI Graphics::DrawWithD3D(LPVOID lp_param)
+void Graphics::DrawWithD3D()
 {
-	while (true)
-	{
-		kInstance->d3d_device_context->ClearRenderTargetView(kInstance->d3d_render_target_view, DirectX::Colors::Black);
+	kInstance->d3d_device_context->ClearRenderTargetView(kInstance->d3d_render_target_view, DirectX::Colors::Black);
 
-		// Render a triangle
-		kInstance->d3d_device_context->VSSetShader(kInstance->d3d_vertex_shader, nullptr, 0);
-		kInstance->d3d_device_context->PSSetShader(kInstance->d3d_pixel_shader, nullptr, 0);
+	// Render a triangle
+	kInstance->d3d_device_context->VSSetShader(kInstance->d3d_vertex_shader, nullptr, 0);
+	kInstance->d3d_device_context->PSSetShader(kInstance->d3d_pixel_shader, nullptr, 0);
 
-		D3D11_MAPPED_SUBRESOURCE resource;
-		UINT subresource = D3D11CalcSubresource(0, 0, 0);
-		HRESULT hr = kInstance->d3d_device_context->Map(kInstance->d3d_texture2d, subresource, D3D11_MAP_WRITE_DISCARD, 0, &resource);
-		ASSERT_HRESULT(hr);
+	D3D11_MAPPED_SUBRESOURCE resource;
+	UINT subresource = D3D11CalcSubresource(0, 0, 0);
+	HRESULT hr = kInstance->d3d_device_context->Map(kInstance->d3d_texture2d, subresource, D3D11_MAP_WRITE_DISCARD, 0, &resource);
+	ASSERT_HRESULT(hr);
 
-		while (WaitForSingleObject(kInstance->d3d_thread_semaphore, 0L) != WAIT_OBJECT_0);
-		memcpy(resource.pData, kInstance->GetFrontBuffer(), kInstance->pixel_count * sizeof(int));
-		ReleaseSemaphore(kInstance->d3d_thread_semaphore, 1, nullptr);
-		kInstance->d3d_device_context->Unmap(kInstance->d3d_texture2d, subresource);
+	memcpy(resource.pData, kInstance->GetFrontBuffer(), kInstance->pixel_count * sizeof(int));
+	kInstance->d3d_device_context->Unmap(kInstance->d3d_texture2d, subresource);
 
-		kInstance->d3d_device_context->PSSetShaderResources(0, 1, &kInstance->d3d_texture_rv);
-		kInstance->d3d_device_context->PSSetSamplers(0, 1, &kInstance->d3d_sampler_state);
-		kInstance->d3d_device_context->DrawIndexed(6, 0, 0);
+	kInstance->d3d_device_context->PSSetShaderResources(0, 1, &kInstance->d3d_texture_rv);
+	kInstance->d3d_device_context->PSSetSamplers(0, 1, &kInstance->d3d_sampler_state);
+	kInstance->d3d_device_context->DrawIndexed(6, 0, 0);
 
-		kInstance->d3d_swap_chain->Present(0, 0);
-	}
-
-	return 0;
+	kInstance->d3d_swap_chain->Present(0, 0);
 }
 
 void Graphics::CreateGameWindow(HINSTANCE hinstance, int ncmdshow, WNDPROC lpfn_wnd_proc)
@@ -387,14 +375,6 @@ void Graphics::InitializeD3DDevice()
 
 	// Set primitive topology
 	d3d_device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	// Create draw thread
-	d3d_thread_handle = CreateThread(nullptr, 0, Graphics::DrawWithD3D, nullptr, 0, &d3d_thread_handle_id);
-	d3d_thread_semaphore = CreateSemaphore(
-		nullptr,    // default security attributes
-		1,			// initial count
-		2,			// maximum count
-		nullptr);   // unnamed semaphore
 }
 
 void Graphics::DestroyD3DDevice()
@@ -432,12 +412,7 @@ void Graphics::CompileShaderFromFile(WCHAR* file_name, LPCSTR entry_point, LPCST
 	ID3DBlob* error_blob = nullptr;
 	hr = D3DCompileFromFile(file_name, nullptr, nullptr, entry_point, shader_model,
 		shader_flags, 0, blob_out, &error_blob);
-	if (FAILED(hr)
-		|| error_blob)
-	{
-		// Assert;
-		return;
-	}
+	ASSERT_HRESULT(hr)
 }
 
 Graphics::Graphics(int width, int height)

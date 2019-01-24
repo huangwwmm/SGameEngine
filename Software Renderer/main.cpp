@@ -3,6 +3,7 @@
 #include "ftime.h"
 #include "graphics.h"
 #include "fdebug.h"
+#include "fbxloader.h"
 #include <windows.h>
 #include <math.h>
 #include <mmsystem.h>
@@ -68,7 +69,7 @@ __forceinline int InfiniteGameLoop()
 			Tick(dt);
 		}
 
-		Graphics::kInstance->Render();
+		Graphics::GetInstance()->Render();
 	}
 
 	return (int)msg.wParam;
@@ -81,6 +82,7 @@ int WINAPI WinMain(HINSTANCE hInstance
 {
 	FDebug::GetInstance();
 	FTime::GetInstance();
+	FbxLoader::GetInstance();
 
 	Graphics::Initialize(hInstance, nCmdShow, WindowProc);
 	int msg = InfiniteGameLoop();

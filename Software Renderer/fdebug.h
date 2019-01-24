@@ -14,7 +14,8 @@ public:
 	static FDebug *GetInstance();
 
 public:
-	void AssertHresult(HRESULT hr);
+	void AssertHresult(HRESULT hr) const;
+	void Assert(const char *message) const;
 
 public:
 	FDebug();
@@ -22,3 +23,4 @@ public:
 };
 
 #define ASSERT_HRESULT(hr) FDebug::GetInstance()->AssertHresult(hr);
+#define ASSERT(valid, message) if(!valid) {FDebug::GetInstance()->Assert(message);}

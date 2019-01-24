@@ -13,7 +13,7 @@
 
 class Graphics
 {
-public:
+private:
 	static Graphics *kInstance;
 
 private:
@@ -49,11 +49,13 @@ private:
 	ID3D11ShaderResourceView* d3d_texture_rv = nullptr;
 	ID3D11SamplerState* d3d_sampler_state = nullptr;
 	ID3D11Texture2D *d3d_texture2d = nullptr;
-	DWORD d3d_thread_handle_id = 0;
-	HANDLE d3d_thread_handle = nullptr;
-	HANDLE d3d_thread_semaphore = nullptr;
 #pragma endregion
 
+public:
+	__forceinline static Graphics *GetInstance()
+	{
+		return kInstance;
+	}
 
 public:
 	static void Initialize(HINSTANCE hinstance, int ncmdshow, WNDPROC lpfn_wnd_proc);
@@ -79,7 +81,7 @@ private:
 	void InitializeD3DDevice();
 	void DestroyD3DDevice();
 	void CompileShaderFromFile(WCHAR * file_name, LPCSTR entry_point, LPCSTR shader_model, ID3DBlob ** blob_out);
-	static DWORD WINAPI DrawWithD3D(LPVOID lp_param);
+	void DrawWithD3D();
 
 private:
 	__forceinline int* GetFrontBuffer() const
