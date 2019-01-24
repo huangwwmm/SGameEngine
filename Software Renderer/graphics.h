@@ -1,7 +1,7 @@
 #pragma once
-#include "ftime.h"
+#include "time.h"
 #include "resource.h"
-#include "fdebug.h"
+#include "debug.h"
 #include <windows.h>
 #include <iostream>
 #include <wrl/client.h>
@@ -11,11 +11,8 @@
 #include <directxcolors.h>
 #include <string>
 
-class Graphics
+class FGraphics
 {
-private:
-	static Graphics *kInstance;
-
 private:
 	// Color[pixel_count * 2]
 	// It contains tow buffers, buffer0[pixel_count:0] and buffer1[pixel_count*2:pixel_count]
@@ -52,14 +49,7 @@ private:
 #pragma endregion
 
 public:
-	__forceinline static Graphics *GetInstance()
-	{
-		return kInstance;
-	}
-
-public:
-	static void Initialize(HINSTANCE hinstance, int ncmdshow, WNDPROC lpfn_wnd_proc);
-	static void Destroy();
+	static FGraphics *GetInstance();
 
 public:
 	__forceinline int GetWidth() const
@@ -73,10 +63,10 @@ public:
 	}
 
 public:
-	void Render();
+	void Renderer();
 
 private:
-	void CreateGameWindow(HINSTANCE hinstance, int ncmdshow, WNDPROC lpfn_wnd_proc);
+	void CreateGameWindow();
 	void DestroyGameWindow();
 	void InitializeD3DDevice();
 	void DestroyD3DDevice();
@@ -100,8 +90,8 @@ private:
 	}
 
 private:
-	Graphics(int width, int height);
-	~Graphics();
+	FGraphics(int width, int height);
+	~FGraphics();
 
 private:
 	struct SimpleVertex

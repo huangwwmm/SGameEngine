@@ -1,7 +1,7 @@
 #pragma once
 #include "vector.h"
 
-struct Vertex
+struct FVertex
 {
 	// moudel space
 	FVector position_moudel;

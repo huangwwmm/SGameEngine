@@ -1,92 +1,19 @@
-﻿#include "vector.h"
-#include "matrix.h"
-#include "ftime.h"
-#include "graphics.h"
-#include "fdebug.h"
-#include "fbxloader.h"
+﻿#include "game_engine.h"
 #include <windows.h>
-#include <math.h>
-#include <mmsystem.h>
-#include <fbxsdk.h>
-#include <fcntl.h>
 
-HWND hwnd;
+HINSTANCE kHInstance;
+int kNCmdShow;
 
-LRESULT CALLBACK WindowProc(HWND hwnd
-	, UINT message
-	, WPARAM wparam
-	, LPARAM lparam)
+int WINAPI WinMain(HINSTANCE h_instance
+	, HINSTANCE h_prev_instance
+	, LPSTR lp_cmd_line
+	, int n_cmd_show)
 {
-	switch (message)
-	{
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-	}
+	kHInstance = h_instance;
+	kNCmdShow = n_cmd_show;
 
-	return DefWindowProc(hwnd, message, wparam, lparam);
-}
-
-__forceinline void Tick(float delta_time)
-{
-}
-
-__forceinline int InfiniteGameLoop()
-{
-	MSG msg;
-	const double dt = 1 / 30.0f;
-
-	double currentTime = FTime::GetInstance()->GetCpuTime();
-	double accumulator = 0.0;
-
-	// Enter the infinite message loop
-	while (true)
-	{
-		// Check to see if any messages are waiting in the queue
-		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-		{
-			// Translate the message and dispatch it to WindowProc()
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-
-		// If the message is WM_QUIT, exit the while loop
-		if (msg.message == WM_QUIT)
-		{
-			break;
-		}
-
-		double newTime = FTime::GetInstance()->GetCpuTime();
-		double frameTime = newTime - currentTime;
-		currentTime = newTime;
-
-		accumulator += frameTime;
-
-		while (accumulator >= dt)
-		{
-			accumulator -= dt;
-
-			Tick(dt);
-		}
-
-		Graphics::GetInstance()->Render();
-	}
-
-	return (int)msg.wParam;
-}
-
-int WINAPI WinMain(HINSTANCE hInstance
-	, HINSTANCE hPrevInstance
-	, LPSTR lpCmdLine
-	, int nCmdShow)
-{
-	FDebug::GetInstance();
-	FTime::GetInstance();
-	FbxLoader::GetInstance();
-
-	Graphics::Initialize(hInstance, nCmdShow, WindowProc);
-	int msg = InfiniteGameLoop();
-	Graphics::Destroy();
-
-	return msg;
+	FGameEngine::GetInstance()->Initialize();
+	int message = FGameEngine::GetInstance()->InfiniteGameLoop();
+	FGameEngine::GetInstance()->Destroy();
+	return message;
 }

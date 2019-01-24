@@ -1,4 +1,4 @@
-#include "fdebug.h"
+#include "debug.h"
 
 FDebug * FDebug::GetInstance()
 {

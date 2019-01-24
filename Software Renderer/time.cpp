@@ -1,4 +1,4 @@
-#include "ftime.h"
+#include "time.h"
 
 FTime *FTime::GetInstance()
 {

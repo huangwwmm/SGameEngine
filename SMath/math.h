@@ -9,7 +9,7 @@
 const float kThreshVectorNormalized = 0.01f;
 #pragma endregion
 
-namespace SMath
+class FMath
 {
 	static __forceinline float InvSqrt(float value)
 	{

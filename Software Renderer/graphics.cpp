@@ -1,23 +1,16 @@
+#include "game_engine.h"
 #include "graphics.h"
 
-Graphics* Graphics::kInstance = nullptr;
+extern HINSTANCE kHInstance;
+extern int kNCmdShow;
 
-void Graphics::Initialize(HINSTANCE hinstance, int ncmdshow, WNDPROC lpfn_wnd_proc)
+FGraphics *FGraphics::GetInstance()
 {
-	kInstance = new Graphics(800, 600);
-
-	kInstance->CreateGameWindow(hinstance, ncmdshow, lpfn_wnd_proc);
-	kInstance->InitializeD3DDevice();
+	static FGraphics kInstance(480, 320);
+	return &kInstance;
 }
 
-void Graphics::Destroy()
-{
-	kInstance->DestroyGameWindow();
-
-	delete kInstance;
-}
-
-void Graphics::Render()
+void FGraphics::Renderer()
 {
 	int* back_buffer = GetBackBuffer();
 	
@@ -40,40 +33,42 @@ void Graphics::Render()
 	DrawWithD3D();
 }
 
-void Graphics::DrawWithD3D()
+void FGraphics::DrawWithD3D()
 {
-	kInstance->d3d_device_context->ClearRenderTargetView(kInstance->d3d_render_target_view, DirectX::Colors::Black);
+	d3d_device_context->ClearRenderTargetView(d3d_render_target_view, DirectX::Colors::Black);
 
 	// Render a triangle
-	kInstance->d3d_device_context->VSSetShader(kInstance->d3d_vertex_shader, nullptr, 0);
-	kInstance->d3d_device_context->PSSetShader(kInstance->d3d_pixel_shader, nullptr, 0);
+	d3d_device_context->VSSetShader(d3d_vertex_shader, nullptr, 0);
+	d3d_device_context->PSSetShader(d3d_pixel_shader, nullptr, 0);
+
 
 	D3D11_MAPPED_SUBRESOURCE resource;
 	UINT subresource = D3D11CalcSubresource(0, 0, 0);
-	HRESULT hr = kInstance->d3d_device_context->Map(kInstance->d3d_texture2d, subresource, D3D11_MAP_WRITE_DISCARD, 0, &resource);
+	HRESULT hr = d3d_device_context->Map(d3d_texture2d, subresource, D3D11_MAP_WRITE_DISCARD, 0, &resource);
 	ASSERT_HRESULT(hr);
 
-	memcpy(resource.pData, kInstance->GetFrontBuffer(), kInstance->pixel_count * sizeof(int));
-	kInstance->d3d_device_context->Unmap(kInstance->d3d_texture2d, subresource);
+	// Write front buffer to texture2d
+	memcpy(resource.pData, GetFrontBuffer(), pixel_count * sizeof(int));
+	d3d_device_context->Unmap(d3d_texture2d, subresource);
 
-	kInstance->d3d_device_context->PSSetShaderResources(0, 1, &kInstance->d3d_texture_rv);
-	kInstance->d3d_device_context->PSSetSamplers(0, 1, &kInstance->d3d_sampler_state);
-	kInstance->d3d_device_context->DrawIndexed(6, 0, 0);
+	d3d_device_context->PSSetShaderResources(0, 1, &d3d_texture_rv);
+	d3d_device_context->PSSetSamplers(0, 1, &d3d_sampler_state);
+	d3d_device_context->DrawIndexed(6, 0, 0);
 
-	kInstance->d3d_swap_chain->Present(0, 0);
+	d3d_swap_chain->Present(0, 0);
 }
 
-void Graphics::CreateGameWindow(HINSTANCE hinstance, int ncmdshow, WNDPROC lpfn_wnd_proc)
+void FGraphics::CreateGameWindow()
 {
 	// Register class
 	WNDCLASSEX wcex;
 	wcex.cbSize = sizeof(WNDCLASSEX);
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc = lpfn_wnd_proc;
+	wcex.lpfnWndProc = FGameEngine::WindowProc;
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
-	wcex.hInstance = hinstance;
-	wcex.hIcon = LoadIcon(hinstance, (LPCTSTR)IDI_ICON1);
+	wcex.hInstance = kHInstance;
+	wcex.hIcon = LoadIcon(kHInstance, (LPCTSTR)IDI_ICON1);
 	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	wcex.lpszMenuName = nullptr;
@@ -83,32 +78,27 @@ void Graphics::CreateGameWindow(HINSTANCE hinstance, int ncmdshow, WNDPROC lpfn_
 
 	// Create the window
 	hwnd = CreateWindow(L"SSSGameEngineClass", // Window class
-		L"SSS Game Engine", // Window text
+		L"SSS(Simple Stupid Slow) Game Engine", // Window text
 		WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, // Window style
 		CW_USEDEFAULT, CW_USEDEFAULT, // Position
-		Graphics::kInstance->GetWidth(), Graphics::kInstance->GetHeight(), // Size
+		width, height, // Size
 		nullptr, // Parent window    
 		nullptr, // Menu
-		hinstance, // Instance handle
+		kHInstance, // Instance handle
 		nullptr // Additional application data
 	);
+	ASSERT(hwnd, "CreateWindow");
 
-	if (!hwnd)
-	{
-		// UNDONE Assert
-		return;
-	}
-
-	ShowWindow(hwnd, ncmdshow);
+	ShowWindow(hwnd, kNCmdShow);
 }
 
-void Graphics::DestroyGameWindow()
+void FGraphics::DestroyGameWindow()
 {
 	DestroyWindow(hwnd);
 	DestroyD3DDevice();
 }
 
-void Graphics::InitializeD3DDevice()
+void FGraphics::InitializeD3DDevice()
 {
 	HRESULT hr = S_OK;
 
@@ -377,7 +367,7 @@ void Graphics::InitializeD3DDevice()
 	d3d_device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void Graphics::DestroyD3DDevice()
+void FGraphics::DestroyD3DDevice()
 {
 	if (d3d_device_context) d3d_device_context->ClearState();
 
@@ -393,7 +383,7 @@ void Graphics::DestroyD3DDevice()
 	if (d3d_device) d3d_device->Release();
 }
 
-void Graphics::CompileShaderFromFile(WCHAR* file_name, LPCSTR entry_point, LPCSTR shader_model, ID3DBlob** blob_out)
+void FGraphics::CompileShaderFromFile(WCHAR* file_name, LPCSTR entry_point, LPCSTR shader_model, ID3DBlob** blob_out)
 {
 	HRESULT hr = S_OK;
 
@@ -415,10 +405,14 @@ void Graphics::CompileShaderFromFile(WCHAR* file_name, LPCSTR entry_point, LPCST
 	ASSERT_HRESULT(hr)
 }
 
-Graphics::Graphics(int width, int height)
+FGraphics::FGraphics(int width, int height)
 {
 	this->width = width;
 	this->height = height;
+
+	CreateGameWindow();
+	InitializeD3DDevice();
+	
 	pixel_count = width * height;
 	front_buffer_index = 1;
 
@@ -426,7 +420,10 @@ Graphics::Graphics(int width, int height)
 	memset(buffers, 0, sizeof(int) * pixel_count * 2);
 }
 
-Graphics::~Graphics()
+FGraphics::~FGraphics()
 {
 	delete[] buffers;
+
+	DestroyD3DDevice();
+	DestroyGameWindow();
 }

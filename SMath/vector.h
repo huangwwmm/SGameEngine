@@ -1,5 +1,5 @@
 #pragma once
-#include "smath.h"
+#include "math.h"
 
 __declspec(align(16)) struct FVector
 {
@@ -186,7 +186,7 @@ __forceinline void FVector::Set(float *arr)
 
 __forceinline float FVector::Magnitude() const
 {
-	return SMath::Sqrt(MagnitudeSquared());
+	return FMath::Sqrt(MagnitudeSquared());
 }
 
 __forceinline float FVector::MagnitudeSquared() const
@@ -196,13 +196,13 @@ __forceinline float FVector::MagnitudeSquared() const
 
 __forceinline void FVector::Normalize()
 {
-	const float scale = SMath::InvSqrt(MagnitudeSquared());
+	const float scale = FMath::InvSqrt(MagnitudeSquared());
 	x *= scale; y *= scale; z *= scale;
 }
 
 __forceinline bool FVector::IsNormalize() const
 {
-	return (SMath::Abs(1.0f - MagnitudeSquared()) < kThreshVectorNormalized);
+	return (FMath::Abs(1.0f - MagnitudeSquared()) < kThreshVectorNormalized);
 }
 
 __forceinline std::ostream & operator<<(std::ostream &output, FVector &vec)

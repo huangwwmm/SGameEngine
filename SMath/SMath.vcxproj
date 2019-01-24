@@ -149,7 +149,7 @@
   <ItemGroup>
     <ClInclude Include="macros.h" />
     <ClInclude Include="matrix.h" />
-    <ClInclude Include="smath.h" />
+    <ClInclude Include="math.h" />
     <ClInclude Include="vector.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

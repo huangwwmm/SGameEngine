@@ -192,15 +192,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="fbxloader.cpp" />
-    <ClCompile Include="fdebug.cpp" />
-    <ClCompile Include="ftime.cpp" />
+    <ClCompile Include="debug.cpp" />
+    <ClCompile Include="time.cpp" />
+    <ClCompile Include="game_engine.cpp" />
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="fbxloader.h" />
-    <ClInclude Include="fdebug.h" />
-    <ClInclude Include="ftime.h" />
+    <ClInclude Include="debug.h" />
+    <ClInclude Include="time.h" />
+    <ClInclude Include="game_engine.h" />
     <ClInclude Include="graphics.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="vertex.h" />

@@ -1,12 +1,12 @@
 #include "fbxloader.h"
 
-FbxLoader *FbxLoader::GetInstance()
+FFbxLoader *FFbxLoader::GetInstance()
 {
-	static FbxLoader kInstance;
+	static FFbxLoader kInstance;
 	return &kInstance;
 }
 
-void FbxLoader::LoadFbx(const char * filepath) const
+void FFbxLoader::LoadFbx(const char * filepath) const
 {
 	// Create an importer.
 	FbxImporter *importer = FbxImporter::Create(fbx_manager, "");
@@ -26,7 +26,7 @@ void FbxLoader::LoadFbx(const char * filepath) const
 	ConvertToActor(root_node);
 }
 
-void FbxLoader::ConvertToActor(const FbxNode *node) const
+void FFbxLoader::ConvertToActor(const FbxNode *node) const
 {
 	int child_count = node->GetChildCount();
 	for (int i_child = 0; i_child < child_count; i_child++)
@@ -42,7 +42,7 @@ void FbxLoader::ConvertToActor(const FbxNode *node) const
 	}
 }
 
-FbxLoader::FbxLoader()
+FFbxLoader::FFbxLoader()
 {
 	// Create the FBX SDK manager
 	fbx_manager = FbxManager::Create();
@@ -53,7 +53,7 @@ FbxLoader::FbxLoader()
 	fbx_manager->SetIOSettings(io_setting);
 }
 
-FbxLoader::~FbxLoader()
+FFbxLoader::~FFbxLoader()
 {
 	fbx_manager->Destroy();
 }
