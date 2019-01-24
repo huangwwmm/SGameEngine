@@ -33,6 +33,7 @@ void FDebug::AssertHresult(HRESULT hr)
 			, MB_ICONWARNING | MB_CANCELTRYCONTINUE | MB_DEFBUTTON2
 		);
 
+		// UNDONE MiniDumpWriteDump 
 		exit(hr);
 	}
 }
