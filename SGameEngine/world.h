@@ -1,11 +1,12 @@
 #pragma once
+#include "object.h"
 
-class FWorld
+class UWorld : UObject
 {
 public:
-	static FWorld *GetInstance();
+	static UWorld *GetInstance();
 
 public:
-	FWorld();
-	~FWorld();
+	UWorld();
+	~UWorld();
 };

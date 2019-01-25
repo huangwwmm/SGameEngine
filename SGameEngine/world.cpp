@@ -1,15 +1,15 @@
 #include "world.h"
 
-FWorld *FWorld::GetInstance()
+UWorld *UWorld::GetInstance()
 {
-	static FWorld kInstance;
+	static UWorld kInstance;
 	return &kInstance;
 }
 
-FWorld::FWorld()
+UWorld::UWorld()
 {
 }
 
-FWorld::~FWorld()
+UWorld::~UWorld()
 {
 }
