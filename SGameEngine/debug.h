@@ -24,5 +24,6 @@ public:
 	~FDebug();
 };
 
-#define ASSERT_HRESULT(hr) FDebug::GetInstance()->AssertHresult(hr);
-#define ASSERT(valid, message) if(!valid) {FDebug::GetInstance()->Assert(message);}
+#define FASSERT_HRESULT(hr) FDebug::GetInstance()->AssertHresult(hr);
+#define FASSERT(valid, message) if(!(valid)) {FDebug::GetInstance()->Assert(message);}
+#define FLOG(logs) std::cout<<logs;

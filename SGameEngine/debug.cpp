@@ -9,11 +9,9 @@ FDebug * FDebug::GetInstance()
 FDebug::FDebug()
 {
 	AllocConsole();
-	bool b = AttachConsole(GetCurrentProcessId());
 	freopen_s(&console_in_fp, "CONIN$", "r", stdin);
 	freopen_s(&console_out_fp, "CONOUT$", "w", stdout);
 	freopen_s(&console_err_fp, "CONOUT$", "w", stderr);
-	std::cout << "asdf" << "\n";
 }
 
 

@@ -23,7 +23,7 @@
     <ProjectGuid>{953FAFCD-674B-4523-AC43-DA84F614FC05}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>SGameEngine</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

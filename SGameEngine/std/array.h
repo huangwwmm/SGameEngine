@@ -5,8 +5,8 @@ template<typename TItem>
 class TArray
 {
 private:
-	static int kDefaultSize = 0x4;
-	static int kMaxSize = 0xFFFF;
+	const int kDefaultSize = 0x4;
+	const int kMaxSize = 0xFFFF;
 
 private:
 	TItem* arr;
@@ -21,19 +21,17 @@ public:
 
 public:
 	void Add(const TItem item);
-	void InsertAt(const TItem item, const int index);
 	void Remove(const TItem item);
-	void RemoveAt(const TItem item, const int index);
-	int IndexOf(const TItem item) const;
+	void RemoveAt(const int index);
 	// Not shrink if new_size less zero
-	void Clear(const int new_size);
+	void Clear(int new_size);
 	void Shrink();
+	TItem *Begin();
+	TItem *End();
 
 private:
 	void ResizeTo(const int new_size);
 };
-
-#include <vector>
 
 template<typename TItem>
 inline TArray<TItem>::TArray()
@@ -42,8 +40,8 @@ inline TArray<TItem>::TArray()
 	max_size = kMaxSize;
 	count = 0;
 
-	arr = malloc(sizeof(TItem) * size);
-	ASSERT(arr, "malloc failed");
+	arr = (TItem*)malloc(sizeof(TItem) * size);
+	FASSERT(arr, "malloc failed");
 }
 
 template<typename TItem>
@@ -66,10 +64,31 @@ inline void TArray<TItem>::Add(const TItem item)
 }
 
 template<typename TItem>
-inline int TArray<TItem>::IndexOf(const TItem item) const
+inline void TArray<TItem>::Remove(const TItem item)
 {
-	T *begin = *arr;
-	T *end = *(arr[count - 1]);
+	for (TItem *iter = Begin(); iter != End(); iter++)
+	{
+		if (*iter == item)
+		{
+			memmove(iter, iter + 1, sizeof(TItem) * (End() - iter));
+
+			// Must be at the end, because End() dependent count
+			count--;
+			break;
+		}
+	}
+}
+
+template<typename TItem>
+inline void TArray<TItem>::RemoveAt(const int index)
+{
+	FASSERT(index > 0 && index < count && count > 0, "index out of range");
+
+	TItem *removed = arr + index;
+	memmove(removed, removed + 1, sizeof(TItem) * (End() - removed));
+
+	// Must be at the end, because End() dependent count
+	count--;
 }
 
 template<typename TItem>
@@ -84,17 +103,34 @@ inline void TArray<TItem>::Shrink()
 {
 	if (count > 0)
 	{
-		ResizeTo(count - 1);
+		ResizeTo(count);
 	}
 }
 
 template<typename TItem>
-inline void TArray<TItem>::ResizeTo(const int new_size)
+inline TItem *TArray<TItem>::Begin()
 {
-	ASSERT(new_size <= max_size, "new_size large then max_size");
+	return arr;
+}
+
+template<typename TItem>
+inline TItem *TArray<TItem>::End()
+{
+	return arr + count;
+}
+
+template<typename TItem>
+inline void TArray<TItem>::ResizeTo(int new_size)
+{
+	if (new_size > max_size)
+	{
+		new_size = max_size;
+	}
+
+	FASSERT(new_size >= count, "new_size less then count");
 
 	realloc(arr, sizeof(TItem) * new_size);
-	ASSERT(arr, "realloc failed");
+	FASSERT(arr, "realloc failed");
 
 	size = new_size;
 	if (count > size)

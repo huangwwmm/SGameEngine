@@ -14,7 +14,7 @@ void FFbxLoader::LoadFbx(const char * filepath) const
 	bool import_state = importer->Initialize(filepath
 		, -1
 		, fbx_manager->GetIOSettings());
-	ASSERT(import_state, importer->GetStatus().GetErrorString());
+	FASSERT(import_state, importer->GetStatus().GetErrorString());
 
 	// Create a new scene so that it can be populated by the imported file.
 	FbxScene* scene = FbxScene::Create(fbx_manager, "");
@@ -46,7 +46,7 @@ FFbxLoader::FFbxLoader()
 {
 	// Create the FBX SDK manager
 	fbx_manager = FbxManager::Create();
-	ASSERT(fbx_manager, "FbxManager::Create");
+	FASSERT(fbx_manager, "FbxManager::Create");
 
 	// Create an IOSettings object
 	FbxIOSettings *io_setting = FbxIOSettings::Create(fbx_manager, IOSROOT);
