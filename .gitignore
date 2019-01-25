@@ -35,9 +35,6 @@
 /.vs
 /Debug
 /x64
-/Software Renderer/Debug
-/Software Renderer/x64
-/SMath/Debug
-/SMath/x64
-/FBX SDK/include
-/FBX SDK/lib
+/SGameEngine/Debug
+/SGameEngine/x64
+/FBX SDK
