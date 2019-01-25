@@ -66,10 +66,26 @@ inline void TArray<TItem>::Add(const TItem item)
 }
 
 template<typename TItem>
+inline int TArray<TItem>::IndexOf(const TItem item) const
+{
+	T *begin = *arr;
+	T *end = *(arr[count - 1]);
+}
+
+template<typename TItem>
 inline void TArray<TItem>::Clear(const int new_size)
 {
 	memset(arr, 0, sizeof(TItem) * count);
 	count = 0;
+}
+
+template<typename TItem>
+inline void TArray<TItem>::Shrink()
+{
+	if (count > 0)
+	{
+		ResizeTo(count - 1);
+	}
 }
 
 template<typename TItem>

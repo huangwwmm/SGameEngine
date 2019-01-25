@@ -6,7 +6,7 @@ extern int kNCmdShow;
 
 FGraphics *FGraphics::GetInstance()
 {
-	static FGraphics kInstance(10, 10);
+	static FGraphics kInstance(480, 320);
 	return &kInstance;
 }
 
