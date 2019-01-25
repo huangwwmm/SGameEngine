@@ -95,7 +95,6 @@ void FGraphics::CreateGameWindow()
 void FGraphics::DestroyGameWindow()
 {
 	DestroyWindow(hwnd);
-	DestroyD3DDevice();
 }
 
 void FGraphics::InitializeD3DDevice()
@@ -383,7 +382,7 @@ void FGraphics::DestroyD3DDevice()
 	if (d3d_device) d3d_device->Release();
 }
 
-void FGraphics::CompileShaderFromFile(WCHAR* file_name, LPCSTR entry_point, LPCSTR shader_model, ID3DBlob** blob_out)
+void FGraphics::CompileShaderFromFile(LPCWSTR file_name, LPCSTR entry_point, LPCSTR shader_model, ID3DBlob **blob_out)
 {
 	HRESULT hr = S_OK;
 

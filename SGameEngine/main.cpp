@@ -1,4 +1,4 @@
-﻿#include "game_engine.h"
+#include "game_engine.h"
 #include <windows.h>
 
 HINSTANCE kHInstance;

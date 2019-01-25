@@ -11,6 +11,7 @@ const float kThreshVectorNormalized = 0.01f;
 
 class FMath
 {
+public:
 	static __forceinline float InvSqrt(float value)
 	{
 #ifdef ENABLE_SEE

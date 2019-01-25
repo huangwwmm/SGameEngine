@@ -4,8 +4,7 @@
 #include "debug.h"
 #include <windows.h>
 #include <iostream>
-#include <wrl/client.h>
-#include <d3d11_2.h>
+#include <d3d11_4.h>
 #include <d3dcompiler.h>
 #include <directxmath.h>
 #include <directxcolors.h>
@@ -70,7 +69,7 @@ private:
 	void DestroyGameWindow();
 	void InitializeD3DDevice();
 	void DestroyD3DDevice();
-	void CompileShaderFromFile(WCHAR * file_name, LPCSTR entry_point, LPCSTR shader_model, ID3DBlob ** blob_out);
+	void CompileShaderFromFile(LPCWSTR file_name, LPCSTR entry_point, LPCSTR shader_model, ID3DBlob ** blob_out);
 	void DrawWithD3D();
 
 private:
