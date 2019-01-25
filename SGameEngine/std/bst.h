@@ -5,61 +5,61 @@
 #include "node.h"
 #include <iostream>
 
-template<typename T>
+template<typename TItem>
 class TBst
 {
+private:
+	int count;
+	TNode<TItem> *root;
+
 public:
 	TBst();
 	~TBst();
 
 public:
-	void Insert(const T value);
-	void Delete(const T value);
+	void Insert(const TItem value);
+	void Delete(const TItem value);
 	// The length of arr must be equal to or large then count of nodes in this tree 
-	const void GetInorderArray(T *arr) const;
+	const void GetInorderArray(TItem *arr) const;
 	// Inorder traversing this tree by recursion call
 	// The length of arr must be equal to or large then count of nodes in this tree 
-	const void GetInorderArrayByRecursion(T *arr) const;
+	const void GetInorderArrayByRecursion(TItem *arr) const;
 
 public:
 	inline int GetCount() const
 	{
 		return count;
 	}
-	inline const TNode<T>* GetRootNode() const
+	inline const TNode<TItem>* GetRootNode() const
 	{
 		return root;
 	}
 
 private:
-	int InternalGetInorderArrayByRecursion(TNode<T> *node, T *arr, int index) const;
-
-private:
-	int count;
-	TNode<T> *root;
+	int InternalGetInorderArrayByRecursion(TNode<TItem> *node, TItem *arr, int index) const;
 };
 
-template<typename T>
-TBst<T>::TBst()
+template<typename TItem>
+TBst<TItem>::TBst()
 	: count(0)
 	, root(nullptr)
 {
 }
 
-template<typename T>
-TBst<T>::~TBst()
+template<typename TItem>
+TBst<TItem>::~TBst()
 {
 	if (!root)
 	{
 		return;
 	}
 
-	TNode<T> **stack = new TNode<T> *[count];
+	TNode<TItem> **stack = new TNode<TItem> *[count];
 	int stack_count = 0;
 	stack[stack_count++] = root;
 	root = nullptr;
 
-	TNode<T> *iter = nullptr;
+	TNode<TItem> *iter = nullptr;
 	while (stack_count > 0)
 	{
 		iter = stack[--stack_count];
@@ -78,17 +78,17 @@ TBst<T>::~TBst()
 	delete[] stack;
 }
 
-template<typename T>
-void TBst<T>::Insert(const T value)
+template<typename TItem>
+void TBst<TItem>::Insert(const TItem value)
 {
-	TNode<T> *node = new TNode<T>(value);
+	TNode<TItem> *node = new TNode<TItem>(value);
 
 	if (root)
 	{
 		// find insert location
-		TNode<T> *parent = nullptr;
+		TNode<TItem> *parent = nullptr;
 		{
-			TNode<T> *location = root;
+			TNode<TItem> *location = root;
 			while (location)
 			{
 				parent = location;
@@ -114,22 +114,22 @@ void TBst<T>::Insert(const T value)
 	count++;
 }
 
-template<typename T>
-void TBst<T>::Delete(const T value)
+template<typename TItem>
+void TBst<TItem>::Delete(const TItem value)
 {
 	if (!root)
 	{
 		return;
 	}
 
-	TNode<T> *iter = root;
-	TNode<T> *parent = nullptr;
+	TNode<TItem> *iter = root;
+	TNode<TItem> *parent = nullptr;
 	while (iter)
 	{
 		if (iter->value == value)
 		{
 			// found target. iter is the target to be delete
-			TNode<T> *replace_iterator = nullptr;
+			TNode<TItem> *replace_iterator = nullptr;
 			// iter is leaf node
 			if (!iter->left
 				&& !iter->right)
@@ -140,7 +140,7 @@ void TBst<T>::Delete(const T value)
 			else if (iter->left
 				&& iter->right)
 			{
-				TNode<T> *leftleaf_in_iterator_right = iter->right;
+				TNode<TItem> *leftleaf_in_iterator_right = iter->right;
 				// right subtree value is definitely larget than left subtree
 				// so replace iter with right subnode 
 				replace_iterator = leftleaf_in_iterator_right;
@@ -198,8 +198,8 @@ void TBst<T>::Delete(const T value)
 	}
 }
 
-template<typename T>
-int TBst<T>::InternalGetInorderArrayByRecursion(TNode<T> *node, T *arr, int index) const
+template<typename TItem>
+int TBst<TItem>::InternalGetInorderArrayByRecursion(TNode<TItem> *node, TItem *arr, int index) const
 {
 	if (node)
 	{
@@ -214,19 +214,19 @@ int TBst<T>::InternalGetInorderArrayByRecursion(TNode<T> *node, T *arr, int inde
 	}
 }
 
-template<typename T>
-const void TBst<T>::GetInorderArrayByRecursion(T *arr) const
+template<typename TItem>
+const void TBst<TItem>::GetInorderArrayByRecursion(TItem *arr) const
 {
 	InternalGetInorderArrayByRecursion(root, arr, 0);
 }
 
-template<typename T>
-inline const void TBst<T>::GetInorderArray(T * arr) const
+template<typename TItem>
+inline const void TBst<TItem>::GetInorderArray(TItem * arr) const
 {
-	TNode<T> **stack = new TNode<T> *[count];
+	TNode<TItem> **stack = new TNode<TItem> *[count];
 	int stack_count = 0;
 	int arr_index = 0;
-	TNode<T> *node = root;
+	TNode<TItem> *node = root;
 
 	while (node
 		|| stack_count > 0)

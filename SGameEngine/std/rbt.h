@@ -4,12 +4,12 @@
 
 #include <iostream>
 
-enum ERbtColor { kRbtColorRed, kRbtColorBlack };
+enum ERbtColor { ERbtColorRed, ERbtColorBlack };
 
-template<typename T>
+template<typename TItem>
 struct TRbtNode
 {
-	T value;
+	TItem value;
 
 	ERbtColor color;
 
@@ -17,65 +17,65 @@ struct TRbtNode
 	TRbtNode *left;
 	TRbtNode *right;
 
-	TRbtNode(T value);
-	TRbtNode(T value, ERbtColor color);
+	TRbtNode(TItem value);
+	TRbtNode(TItem value, ERbtColor color);
 };
 
-template<typename T>
+template<typename TItem>
 class TRbt
 {
+private:
+	int count;
+	TRbtNode<TItem> *root;
+
 public:
 	TRbt();
 	~TRbt();
 
 public:
-	void Insert(const T value);
-	void Delete(const T value);
+	void Insert(const TItem value);
+	void Delete(const TItem value);
 	// The length of arr must be equal to or large then count of nodes in this tree 
-	const void GetInorderArray(T *arr) const;
+	const void GetInorderArray(TItem *arr) const;
 	// This is the debugging function. In fact it is always vaild
 	bool IsVaildRbt() const;
 
 	inline int GetCount() const;
-	inline const TRbtNode<T>* GetRootNode() const;
-	inline TRbtNode<T>* GetBrotherNode(const TRbtNode<T> *node) const;
+	inline const TRbtNode<TItem>* GetRootNode() const;
+	inline TRbtNode<TItem>* GetBrotherNode(const TRbtNode<TItem> *node) const;
 	// Return true when node is nullptr and color is black
-	inline bool IsColor(TRbtNode<T> *node, ERbtColor color) const;
+	inline bool IsColor(TRbtNode<TItem> *node, ERbtColor color) const;
 
 private:
-	inline void RepairInsert(TRbtNode<T> *node);
-	inline void RepairDelete(TRbtNode<T> *node, TRbtNode<T> *parent);
-	void RotateLeft(TRbtNode<T> *node);
-	void RotateRight(TRbtNode<T> *node);
+	inline void RepairInsert(TRbtNode<TItem> *node);
+	inline void RepairDelete(TRbtNode<TItem> *node, TRbtNode<TItem> *parent);
+	void RotateLeft(TRbtNode<TItem> *node);
+	void RotateRight(TRbtNode<TItem> *node);
 	// This is the debugging function. In fact it is always vaild
-	bool IsVaildRbt(TRbtNode<T> *node, int all_black_count_each_path, int black_count_in_this_path) const;
-
-private:
-	int count;
-	TRbtNode<T> *root;
+	bool IsVaildRbt(TRbtNode<TItem> *node, int all_black_count_each_path, int black_count_in_this_path) const;
 };
 
-template<typename T>
-TRbt<T>::TRbt()
+template<typename TItem>
+TRbt<TItem>::TRbt()
 	: count(0)
 	, root(nullptr)
 {
 }
 
-template<typename T>
-TRbt<T>::~TRbt()
+template<typename TItem>
+TRbt<TItem>::~TRbt()
 {
 	if (!root)
 	{
 		return;
 	}
 
-	TRbtNode<T> **stack = new TRbtNode<T> *[count];
+	TRbtNode<TItem> **stack = new TRbtNode<TItem> *[count];
 	int stack_count = 0;
 	stack[stack_count++] = root;
 	root = nullptr;
 
-	TRbtNode<T> *iter = nullptr;
+	TRbtNode<TItem> *iter = nullptr;
 	while (stack_count > 0)
 	{
 		iter = stack[--stack_count];
@@ -94,17 +94,17 @@ TRbt<T>::~TRbt()
 	delete[] stack;
 }
 
-template<typename T>
-void TRbt<T>::Insert(const T value)
+template<typename TItem>
+void TRbt<TItem>::Insert(const TItem value)
 {
 	if (root)
 	{
-		TRbtNode<T> *node = new TRbtNode<T>(value, kRbtColorRed);
+		TRbtNode<TItem> *node = new TRbtNode<TItem>(value, ERbtColorRed);
 
 		// Find insert location
-		TRbtNode<T> *parent = nullptr;
+		TRbtNode<TItem> *parent = nullptr;
 		{
-			TRbtNode<T> *iter = root;
+			TRbtNode<TItem> *iter = root;
 			while (iter)
 			{
 				parent = iter;
@@ -123,18 +123,18 @@ void TRbt<T>::Insert(const T value)
 	// Node is at the root of the tree. root color must be black
 	else
 	{
-		root = new TRbtNode<T>(value, kRbtColorBlack);
+		root = new TRbtNode<TItem>(value, ERbtColorBlack);
 	}
 
 	count++;
 }
 
-template<typename T>
-void TRbt<T>::Delete(const T value)
+template<typename TItem>
+void TRbt<TItem>::Delete(const TItem value)
 {
 	// Find value
-	TRbtNode<T> *node = nullptr;
-	TRbtNode<T> *iter = root;
+	TRbtNode<TItem> *node = nullptr;
+	TRbtNode<TItem> *iter = root;
 	while (iter)
 	{
 		if (iter->value == value)
@@ -157,12 +157,12 @@ void TRbt<T>::Delete(const T value)
 	}
 
 	// Delete node
-	TRbtNode<T> *child, *parent;
+	TRbtNode<TItem> *child, *parent;
 	ERbtColor color;
 
 	if (node->left && node->right)
 	{
-		TRbtNode<T> *replace = node;
+		TRbtNode<TItem> *replace = node;
 
 		replace = replace->right;
 		while (replace->left)
@@ -205,7 +205,7 @@ void TRbt<T>::Delete(const T value)
 		replace->left = node->left;
 		node->left->parent = replace;
 
-		if (color == kRbtColorBlack)
+		if (color == ERbtColorBlack)
 		{
 			RepairDelete(child, parent);
 		}
@@ -230,7 +230,7 @@ void TRbt<T>::Delete(const T value)
 			root = child;
 		}
 
-		if (color == kRbtColorBlack)
+		if (color == ERbtColorBlack)
 		{
 			RepairDelete(child, parent);
 		}
@@ -240,14 +240,14 @@ void TRbt<T>::Delete(const T value)
 	count--;
 }
 
-template<typename T>
-inline const TRbtNode<T>* TRbt<T>::GetRootNode() const
+template<typename TItem>
+inline const TRbtNode<TItem>* TRbt<TItem>::GetRootNode() const
 {
 	return root;
 }
 
-template<typename T>
-inline TRbtNode<T>* TRbt<T>::GetBrotherNode(const TRbtNode<T>* node) const
+template<typename TItem>
+inline TRbtNode<TItem>* TRbt<TItem>::GetBrotherNode(const TRbtNode<TItem>* node) const
 {
 	return node->parent
 		? (node->parent->left == node
@@ -256,31 +256,31 @@ inline TRbtNode<T>* TRbt<T>::GetBrotherNode(const TRbtNode<T>* node) const
 		: nullptr;
 }
 
-template<typename T>
-inline bool TRbt<T>::IsColor(TRbtNode<T>* node, ERbtColor color) const
+template<typename TItem>
+inline bool TRbt<TItem>::IsColor(TRbtNode<TItem>* node, ERbtColor color) const
 {
 	return node
 		? node->color == color
-		: color == kRbtColorBlack;
+		: color == ERbtColorBlack;
 }
 
-template<typename T>
-inline void TRbt<T>::RepairInsert(TRbtNode<T>* node)
+template<typename TItem>
+inline void TRbt<TItem>::RepairInsert(TRbtNode<TItem>* node)
 {
-	TRbtNode<T> *parent, *grandparent;
+	TRbtNode<TItem> *parent, *grandparent;
 	while (node != root
-		&& node->color == kRbtColorRed
-		&& node->parent->color == kRbtColorRed)
+		&& node->color == ERbtColorRed
+		&& node->parent->color == ERbtColorRed)
 	{
 		parent = node->parent;
 		grandparent = parent->parent;
 
-		TRbtNode<T> *uncle = GetBrotherNode(parent);
-		if (IsColor(uncle, kRbtColorRed))
+		TRbtNode<TItem> *uncle = GetBrotherNode(parent);
+		if (IsColor(uncle, ERbtColorRed))
 		{
-			uncle->color = kRbtColorBlack;
-			parent->color = kRbtColorBlack;
-			grandparent->color = kRbtColorRed;
+			uncle->color = ERbtColorBlack;
+			parent->color = ERbtColorBlack;
+			grandparent->color = ERbtColorRed;
 			node = grandparent;
 		}
 		else
@@ -315,47 +315,47 @@ inline void TRbt<T>::RepairInsert(TRbtNode<T>* node)
 	}
 
 	// root color must be black
-	root->color = kRbtColorBlack;
+	root->color = ERbtColorBlack;
 }
 
-template<typename T>
-inline void TRbt<T>::RepairDelete(TRbtNode<T> *node, TRbtNode<T> *parent)
+template<typename TItem>
+inline void TRbt<TItem>::RepairDelete(TRbtNode<TItem> *node, TRbtNode<TItem> *parent)
 {
-	TRbtNode<T> *uncle;
+	TRbtNode<TItem> *uncle;
 
-	while (IsColor(node, kRbtColorBlack)
+	while (IsColor(node, ERbtColorBlack)
 		&& node != root)
 	{
 		if (parent->left == node)
 		{
 			uncle = parent->right;
-			if (uncle->color == kRbtColorRed)
+			if (uncle->color == ERbtColorRed)
 			{
-				uncle->color = kRbtColorBlack;
-				parent->color = kRbtColorRed;
+				uncle->color = ERbtColorBlack;
+				parent->color = ERbtColorRed;
 				RotateLeft(parent);
 				uncle = parent->right;
 			}
-			if (IsColor(uncle->left, kRbtColorBlack)
-				&& IsColor(uncle->right, kRbtColorBlack))
+			if (IsColor(uncle->left, ERbtColorBlack)
+				&& IsColor(uncle->right, ERbtColorBlack))
 			{
-				uncle->color = kRbtColorRed;
+				uncle->color = ERbtColorRed;
 				node = parent;
 				parent = node->parent;
 			}
 			else
 			{
-				if (IsColor(uncle->right, kRbtColorBlack))
+				if (IsColor(uncle->right, ERbtColorBlack))
 				{
-					uncle->left->color = kRbtColorBlack;
-					uncle->color = kRbtColorRed;
+					uncle->left->color = ERbtColorBlack;
+					uncle->color = ERbtColorRed;
 					RotateRight(uncle);
 					uncle = parent->right;
 				}
 
 				uncle->color = parent->color;
-				parent->color = kRbtColorBlack;
-				uncle->right->color = kRbtColorBlack;
+				parent->color = ERbtColorBlack;
+				uncle->right->color = ERbtColorBlack;
 				RotateLeft(parent);
 				node = root;
 				break;
@@ -364,32 +364,32 @@ inline void TRbt<T>::RepairDelete(TRbtNode<T> *node, TRbtNode<T> *parent)
 		else
 		{
 			uncle = parent->left;
-			if (uncle->color == kRbtColorRed)
+			if (uncle->color == ERbtColorRed)
 			{
-				uncle->color = kRbtColorBlack;
-				parent->color = kRbtColorRed;
+				uncle->color = ERbtColorBlack;
+				parent->color = ERbtColorRed;
 				RotateRight(parent);
 				uncle = parent->left;
 			}
-			if (IsColor(uncle->left, kRbtColorBlack)
-				&& IsColor(uncle->right, kRbtColorBlack))
+			if (IsColor(uncle->left, ERbtColorBlack)
+				&& IsColor(uncle->right, ERbtColorBlack))
 			{
-				uncle->color = kRbtColorRed;
+				uncle->color = ERbtColorRed;
 				node = parent;
 				parent = node->parent;
 			}
 			else
 			{
-				if (IsColor(uncle->left, kRbtColorBlack))
+				if (IsColor(uncle->left, ERbtColorBlack))
 				{
-					uncle->right->color = kRbtColorBlack;
-					uncle->color = kRbtColorRed;
+					uncle->right->color = ERbtColorBlack;
+					uncle->color = ERbtColorRed;
 					RotateLeft(uncle);
 					uncle = parent->left;
 				}
 				uncle->color = parent->color;
-				parent->color = kRbtColorBlack;
-				uncle->left->color = kRbtColorBlack;
+				parent->color = ERbtColorBlack;
+				uncle->left->color = ERbtColorBlack;
 				RotateRight(parent);
 				node = root;
 				break;
@@ -399,14 +399,14 @@ inline void TRbt<T>::RepairDelete(TRbtNode<T> *node, TRbtNode<T> *parent)
 
 	if (node)
 	{
-		node->color = kRbtColorBlack;
+		node->color = ERbtColorBlack;
 	}
 }
 
-template<typename T>
-void TRbt<T>::RotateLeft(TRbtNode<T> *node)
+template<typename TItem>
+void TRbt<TItem>::RotateLeft(TRbtNode<TItem> *node)
 {
-	TRbtNode<T> *right = node->right;
+	TRbtNode<TItem> *right = node->right;
 	node->right = right->left;
 
 	if (node->right)
@@ -428,10 +428,10 @@ void TRbt<T>::RotateLeft(TRbtNode<T> *node)
 	node->parent = right;
 }
 
-template<typename T>
-void TRbt<T>::RotateRight(TRbtNode<T> *node)
+template<typename TItem>
+void TRbt<TItem>::RotateRight(TRbtNode<TItem> *node)
 {
-	TRbtNode<T> *left = node->left;
+	TRbtNode<TItem> *left = node->left;
 	node->left = left->right;
 
 	if (node->left)
@@ -452,8 +452,8 @@ void TRbt<T>::RotateRight(TRbtNode<T> *node)
 	node->parent = left;
 }
 
-template<typename T>
-bool TRbt<T>::IsVaildRbt(TRbtNode<T>* node, int all_black_count_each_path, int black_count_in_this_path) const
+template<typename TItem>
+bool TRbt<TItem>::IsVaildRbt(TRbtNode<TItem>* node, int all_black_count_each_path, int black_count_in_this_path) const
 {
 	if (!node)
 	{
@@ -467,7 +467,7 @@ bool TRbt<T>::IsVaildRbt(TRbtNode<T>* node, int all_black_count_each_path, int b
 		}
 	}
 
-	if (node->color == kRbtColorBlack)
+	if (node->color == ERbtColorBlack)
 	{
 		black_count_in_this_path++;
 	}
@@ -476,18 +476,18 @@ bool TRbt<T>::IsVaildRbt(TRbtNode<T>* node, int all_black_count_each_path, int b
 		&& IsVaildRbt(node->right, all_black_count_each_path, black_count_in_this_path);
 }
 
-template<typename T>
-TRbtNode<T>::TRbtNode(T value)
+template<typename TItem>
+TRbtNode<TItem>::TRbtNode(TItem value)
 	: value(value)
 	, parent(nullptr)
 	, left(nullptr)
 	, right(nullptr)
-	, color(kRbtColorBlack)
+	, color(ERbtColorBlack)
 {
 }
 
-template<typename T>
-TRbtNode<T>::TRbtNode(T value, ERbtColor color)
+template<typename TItem>
+TRbtNode<TItem>::TRbtNode(TItem value, ERbtColor color)
 	: value(value)
 	, parent(nullptr)
 	, left(nullptr)
@@ -496,13 +496,13 @@ TRbtNode<T>::TRbtNode(T value, ERbtColor color)
 {
 }
 
-template<typename T>
-inline const void TRbt<T>::GetInorderArray(T * arr) const
+template<typename TItem>
+inline const void TRbt<TItem>::GetInorderArray(TItem * arr) const
 {
-	TRbtNode<T> **stack = new TRbtNode<T> *[count];
+	TRbtNode<TItem> **stack = new TRbtNode<TItem> *[count];
 	int stack_count = 0;
 	int arr_index = 0;
-	TRbtNode<T> *node = root;
+	TRbtNode<TItem> *node = root;
 
 	while (node
 		|| stack_count > 0)
@@ -523,19 +523,19 @@ inline const void TRbt<T>::GetInorderArray(T * arr) const
 	delete[] stack;
 }
 
-template<typename T>
-inline bool TRbt<T>::IsVaildRbt() const
+template<typename TItem>
+inline bool TRbt<TItem>::IsVaildRbt() const
 {
 	if (count == 0)
 	{
 		return root == nullptr;
 	}
 
-	TRbtNode<T> **arr = new TRbtNode<T> *[count];
-	TRbtNode<T> **stack = new TRbtNode<T> *[count];
+	TRbtNode<TItem> **arr = new TRbtNode<TItem> *[count];
+	TRbtNode<TItem> **stack = new TRbtNode<TItem> *[count];
 	int stack_count = 0;
 	int arr_index = 0;
-	TRbtNode<T> *node = root;
+	TRbtNode<TItem> *node = root;
 
 	while (node
 		|| stack_count > 0)
@@ -555,21 +555,21 @@ inline bool TRbt<T>::IsVaildRbt() const
 	}
 	delete[] stack;
 
-	if (root->color == kRbtColorBlack)
+	if (root->color == ERbtColorBlack)
 	{
 		for (int iNode = 0; iNode < count; iNode++)
 		{
-			TRbtNode<T> *iter = arr[iNode];
-			if (iter->color == kRbtColorRed)
+			TRbtNode<TItem> *iter = arr[iNode];
+			if (iter->color == ERbtColorRed)
 			{
-				if (IsColor(iter->left, kRbtColorRed)
-					|| IsColor(iter->right, kRbtColorRed))
+				if (IsColor(iter->left, ERbtColorRed)
+					|| IsColor(iter->right, ERbtColorRed))
 				{
 					return false;
 				}
 			}
 
-			TRbtNode<T> *iter_root = iter;
+			TRbtNode<TItem> *iter_root = iter;
 			while (iter_root)
 			{
 				if (!iter_root->parent
@@ -581,10 +581,10 @@ inline bool TRbt<T>::IsVaildRbt() const
 			}
 		}
 		int all_black_count_each_path = 0;
-		TRbtNode<T> *left_leaf = root;
+		TRbtNode<TItem> *left_leaf = root;
 		while (left_leaf)
 		{
-			if (left_leaf->color == kRbtColorBlack)
+			if (left_leaf->color == ERbtColorBlack)
 			{
 				all_black_count_each_path++;
 			}
@@ -598,8 +598,8 @@ inline bool TRbt<T>::IsVaildRbt() const
 	}
 }
 
-template<typename T>
-inline int TRbt<T>::GetCount() const
+template<typename TItem>
+inline int TRbt<TItem>::GetCount() const
 {
 	return count;
 }

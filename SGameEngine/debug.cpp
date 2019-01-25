@@ -9,13 +9,20 @@ FDebug * FDebug::GetInstance()
 FDebug::FDebug()
 {
 	AllocConsole();
-	freopen_s(&console_fp, "CONOUT$", "w", stdout);
+	bool b = AttachConsole(GetCurrentProcessId());
+	freopen_s(&console_in_fp, "CONIN$", "r", stdin);
+	freopen_s(&console_out_fp, "CONOUT$", "w", stdout);
+	freopen_s(&console_err_fp, "CONOUT$", "w", stderr);
+	std::cout << "asdf" << "\n";
 }
 
 
 FDebug::~FDebug()
 {
-	fclose(console_fp);
+	fclose(console_in_fp);
+	fclose(console_out_fp);
+	fclose(console_err_fp);
+	FreeConsole();
 }
 
 void FDebug::AssertHresult(HRESULT hr) const
@@ -25,7 +32,7 @@ void FDebug::AssertHresult(HRESULT hr) const
 		_com_error err(hr);
 
 		LPCTSTR error_message = err.ErrorMessage();
-		std::wcout << error_message << "\n";
+		std::wcerr << error_message << "\n";
 		MessageBox(NULL
 			, error_message
 			, (LPCWSTR)L"Assert Details"
@@ -39,7 +46,8 @@ void FDebug::AssertHresult(HRESULT hr) const
 
 void FDebug::Assert(const char *message) const
 {
-	std::cout << message << "\n";
+	//SetConsoleTextAttribute(GetStdHandle(), 54);
+	std::cerr << message << "\n";
 
 	WCHAR message_wchar[256];
 	memset(message_wchar, 0, sizeof(message_wchar));

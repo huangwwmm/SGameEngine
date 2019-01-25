@@ -3,6 +3,7 @@
 #include "time.h"
 #include "fbxloader.h"
 #include "graphics.h"
+#include "world.h"
 
 FGameEngine *FGameEngine::GetInstance()
 {

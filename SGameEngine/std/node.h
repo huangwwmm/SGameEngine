@@ -1,16 +1,16 @@
 #pragma once
-template<typename T>
+template<typename TItem>
 struct TNode
 {
-	T value;
+	TItem value;
 	TNode *left;
 	TNode *right;
 
-	TNode(T value);
+	TNode(TItem value);
 };
 
-template<typename T>
-TNode<T>::TNode(T value)
+template<typename TItem>
+TNode<TItem>::TNode(TItem value)
 	: value(value)
 	, left(nullptr)
 	, right(nullptr)

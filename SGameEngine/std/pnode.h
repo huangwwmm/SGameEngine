@@ -1,19 +1,19 @@
 #pragma once
 
-template<typename T>
+template<typename TItem>
 struct TPNode
 {
-	T value;
+	TItem value;
 
 	TPNode *parent;
 	TPNode *left;
 	TPNode *right;
 
-	TPNode(T value);
+	TPNode(TItem value);
 };
 
-template<typename T>
-TPNode<T>::TPNode(T value)
+template<typename TItem>
+TPNode<TItem>::TPNode(TItem value)
 	: value(value)
 	, parent(nullptr)
 	, left(nullptr)

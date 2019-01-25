@@ -23,7 +23,7 @@
     <ProjectGuid>{953FAFCD-674B-4523-AC43-DA84F614FC05}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>SGameEngine</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -106,12 +106,12 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(FBXSDK_ROOT)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -168,6 +168,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="actor.cpp" />
+    <ClCompile Include="camera_actor.cpp" />
     <ClCompile Include="debug.cpp" />
     <ClCompile Include="fbxloader.cpp" />
     <ClCompile Include="game_engine.cpp" />
@@ -175,9 +176,11 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="object.cpp" />
     <ClCompile Include="time.cpp" />
+    <ClCompile Include="world.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="actor.h" />
+    <ClInclude Include="camera_actor.h" />
     <ClInclude Include="debug.h" />
     <ClInclude Include="fbxloader.h" />
     <ClInclude Include="game_engine.h" />
@@ -188,12 +191,14 @@
     <ClInclude Include="math\vector.h" />
     <ClInclude Include="object.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="std\array.h" />
     <ClInclude Include="std\bst.h" />
     <ClInclude Include="std\node.h" />
     <ClInclude Include="std\pnode.h" />
     <ClInclude Include="std\rbt.h" />
     <ClInclude Include="time.h" />
     <ClInclude Include="vertex.h" />
+    <ClInclude Include="world.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

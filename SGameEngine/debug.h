@@ -8,7 +8,9 @@
 class FDebug
 {
 private:
-	FILE *console_fp;
+	FILE *console_in_fp;
+	FILE *console_out_fp;
+	FILE *console_err_fp;
 
 public:
 	static FDebug *GetInstance();

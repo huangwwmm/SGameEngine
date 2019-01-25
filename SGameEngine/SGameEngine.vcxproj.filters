@@ -51,6 +51,12 @@
     <ClCompile Include="fbxloader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="world.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="camera_actor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="graphics.h">
@@ -103,6 +109,15 @@
     </ClInclude>
     <ClInclude Include="std\bst.h">
       <Filter>Header Files\Std</Filter>
+    </ClInclude>
+    <ClInclude Include="world.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="std\array.h">
+      <Filter>Header Files\Std</Filter>
+    </ClInclude>
+    <ClInclude Include="camera_actor.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
