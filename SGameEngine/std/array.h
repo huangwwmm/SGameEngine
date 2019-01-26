@@ -4,6 +4,9 @@
 template<typename TItem>
 class TArray
 {
+public:
+	class Iterator;
+
 private:
 	const int kDefaultSize = 0x4;
 	const int kMaxSize = 0xFFFF;
@@ -14,7 +17,6 @@ private:
 	int max_size;
 	// equal last item index + 1
 	int count;
-
 public:
 	TArray();
 	~TArray();
@@ -26,11 +28,48 @@ public:
 	// Not shrink if new_size less zero
 	void Clear(int new_size);
 	void Shrink();
-	TItem *Begin();
-	TItem *End();
+	Iterator Begin();
+	Iterator End();
 
 private:
 	void ResizeTo(const int new_size);
+
+public:
+	class Iterator
+	{
+	private:
+		TItem *ptr_;
+
+	public:
+		Iterator(TItem *ptr);
+
+		//TItem* operator*()
+		//{
+		//	return ptr;
+		//}
+
+		Iterator operator++()
+		{
+			ptr_++;
+			//return *this;
+			//return Iterator(ptr_ + 1);
+		}
+		//Iterator& operator++()
+		//{
+		//	ptr++;
+		//	return *this;
+		//}
+
+		friend bool operator==(const Iterator& rhs, const Iterator& lhs)
+		{
+			return rhs.ptr_ == lhs.ptr_;
+		}
+
+		friend bool operator!=(const Iterator& rhs, const Iterator& lhs)
+		{
+			return rhs.ptr_ != lhs.ptr_;
+		}
+	};
 };
 
 template<typename TItem>
@@ -66,17 +105,17 @@ inline void TArray<TItem>::Add(const TItem item)
 template<typename TItem>
 inline void TArray<TItem>::Remove(const TItem item)
 {
-	for (TItem *iter = Begin(); iter != End(); iter++)
-	{
-		if (*iter == item)
-		{
-			memmove(iter, iter + 1, sizeof(TItem) * (End() - iter));
+	//for (TItem *iter = Begin(); iter != End(); iter++)
+	//{
+	//	if (*iter == item)
+	//	{
+	//		memmove(iter, iter + 1, sizeof(TItem) * (End() - iter));
 
-			// Must be at the end, because End() dependent count
-			count--;
-			break;
-		}
-	}
+	//		// Must be at the end, because End() dependent count
+	//		count--;
+	//		break;
+	//	}
+	//}
 }
 
 template<typename TItem>
@@ -108,15 +147,15 @@ inline void TArray<TItem>::Shrink()
 }
 
 template<typename TItem>
-inline TItem *TArray<TItem>::Begin()
+inline typename TArray<TItem>::Iterator TArray<TItem>::Begin()
 {
-	return arr;
+	return Iterator(arr);
 }
 
 template<typename TItem>
-inline TItem *TArray<TItem>::End()
+inline typename TArray<TItem>::Iterator TArray<TItem>::End()
 {
-	return arr + count;
+	return Iterator(arr + count);
 }
 
 template<typename TItem>
@@ -137,5 +176,13 @@ inline void TArray<TItem>::ResizeTo(int new_size)
 	{
 		// UNDONE Need warning log
 		count = size;
+	}
+}
+
+template<typename TItem>
+inline TArray<TItem>::Iterator::Iterator(TItem *ptr)
+{
+	if (ptr){
+		ptr_ = ptr;
 	}
 }
