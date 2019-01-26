@@ -23,27 +23,8 @@ LRESULT FGameEngine::WindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM l
 	return DefWindowProc(hwnd, message, wparam, lparam);
 }
 
-#include "std/array.h"
-
 void FGameEngine::Initialize()
 {
-	TArray<int> arr = TArray<int>();
-	arr.Add(1);
-	arr.Add(2);
-	arr.Add(3);
-	arr.Add(4);
-	arr.Remove(3);
-	arr.Add(5);
-	arr.Remove(1);
-	arr.Add(6);
-	TArray<int>::Iterator iterator = arr.Begin();
-	iterator++;
-	//iterator++;
-	//for (TArray<int>::Iterator iterator = arr.Begin(); iterator != arr.End(); iterator++)
-	//{
-	//	std::cout << &iterator;
-	//}
-
 	FDebug::GetInstance();
 	FTime::GetInstance();
 	FFbxLoader::GetInstance();

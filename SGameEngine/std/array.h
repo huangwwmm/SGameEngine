@@ -38,36 +38,38 @@ public:
 	class Iterator
 	{
 	private:
-		TItem *ptr_;
+		TItem *ptr;
 
 	public:
-		Iterator(TItem *ptr);
+		Iterator(TItem *item);
+		Iterator(const Iterator &obj);
 
-		//TItem* operator*()
-		//{
-		//	return ptr;
-		//}
-
-		Iterator operator++()
+		TItem& operator*()
 		{
-			ptr_++;
-			//return *this;
-			//return Iterator(ptr_ + 1);
+			return *ptr;
 		}
-		//Iterator& operator++()
-		//{
-		//	ptr++;
-		//	return *this;
-		//}
+
+		Iterator& operator++()
+		{
+			ptr++;
+			return *this;
+		}
+
+		Iterator operator++(int)
+		{
+			Iterator tmp = *this;
+			ptr++;
+			return tmp;
+		}
 
 		friend bool operator==(const Iterator& rhs, const Iterator& lhs)
 		{
-			return rhs.ptr_ == lhs.ptr_;
+			return rhs.ptr == lhs.ptr;
 		}
 
 		friend bool operator!=(const Iterator& rhs, const Iterator& lhs)
 		{
-			return rhs.ptr_ != lhs.ptr_;
+			return rhs.ptr != lhs.ptr;
 		}
 	};
 };
@@ -79,14 +81,14 @@ inline TArray<TItem>::TArray()
 	max_size = kMaxSize;
 	count = 0;
 
-	arr = (TItem*)malloc(sizeof(TItem) * size);
+	arr = static_cast<TItem*>(std::malloc(sizeof(TItem) * size));
 	FASSERT(arr, "malloc failed");
 }
 
 template<typename TItem>
 inline TArray<TItem>::~TArray()
 {
-	free(arr);
+	std::free(arr);
 }
 
 template<typename TItem>
@@ -105,17 +107,17 @@ inline void TArray<TItem>::Add(const TItem item)
 template<typename TItem>
 inline void TArray<TItem>::Remove(const TItem item)
 {
-	//for (TItem *iter = Begin(); iter != End(); iter++)
-	//{
-	//	if (*iter == item)
-	//	{
-	//		memmove(iter, iter + 1, sizeof(TItem) * (End() - iter));
+	for (TItem *iter = arr; iter != (arr + count); iter++)
+	{
+		if (*iter == item)
+		{
+			memmove(iter, iter + 1, sizeof(TItem) * ((arr + count) - iter));
 
-	//		// Must be at the end, because End() dependent count
-	//		count--;
-	//		break;
-	//	}
-	//}
+			// Must be at the end, because End() dependent count
+			count--;
+			break;
+		}
+	}
 }
 
 template<typename TItem>
@@ -167,8 +169,8 @@ inline void TArray<TItem>::ResizeTo(int new_size)
 	}
 
 	FASSERT(new_size >= count, "new_size less then count");
-
-	realloc(arr, sizeof(TItem) * new_size);
+	
+	arr = static_cast<TItem*>(realloc(arr, sizeof(TItem) * new_size));
 	FASSERT(arr, "realloc failed");
 
 	size = new_size;
@@ -180,9 +182,13 @@ inline void TArray<TItem>::ResizeTo(int new_size)
 }
 
 template<typename TItem>
-inline TArray<TItem>::Iterator::Iterator(TItem *ptr)
+inline TArray<TItem>::Iterator::Iterator(TItem *item)
+	: ptr(item)
 {
-	if (ptr){
-		ptr_ = ptr;
-	}
+}
+
+template<typename TItem>
+inline TArray<TItem>::Iterator::Iterator(const Iterator &obj)
+	: ptr(obj.ptr)
+{
 }
