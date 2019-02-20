@@ -75,7 +75,7 @@ __forceinline FVector::FVector(float x, float y, float z)
 
 __forceinline FVector::FVector(float *arr)
 {
-	memcpy(this, arr, sizeof(*this));
+	memcpy(this, arr, sizeof(FVector));
 }
 
 __forceinline FVector FVector::operator+(const FVector &vec) const
@@ -181,7 +181,7 @@ __forceinline void FVector::Set(float x, float y, float z)
 
 __forceinline void FVector::Set(float *arr)
 {
-	memcpy(this, arr, 16);
+	memcpy(this, arr, sizeof(FVector));
 }
 
 __forceinline float FVector::Magnitude() const
@@ -202,7 +202,7 @@ __forceinline void FVector::Normalize()
 
 __forceinline bool FVector::IsNormalize() const
 {
-	return (FMath::Abs(1.0f - MagnitudeSquared()) < kThreshVectorNormalized);
+	return (FMath::Abs(1.0f - MagnitudeSquared()) < FMath::kThreshVectorNormalized);
 }
 
 __forceinline std::ostream & operator<<(std::ostream &output, FVector &vec)

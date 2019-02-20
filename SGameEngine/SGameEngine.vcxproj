@@ -168,18 +168,23 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="actor.cpp" />
+    <ClCompile Include="actor_component.cpp" />
     <ClCompile Include="camera_actor.cpp" />
     <ClCompile Include="debug.cpp" />
     <ClCompile Include="fbxloader.cpp" />
     <ClCompile Include="game_engine.cpp" />
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="math\quaternion.cpp" />
+    <ClCompile Include="math\rotator.cpp" />
     <ClCompile Include="object.cpp" />
+    <ClCompile Include="screen_component.cpp" />
     <ClCompile Include="time.cpp" />
     <ClCompile Include="world.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="actor.h" />
+    <ClInclude Include="actor_component.h" />
     <ClInclude Include="camera_actor.h" />
     <ClInclude Include="debug.h" />
     <ClInclude Include="fbxloader.h" />
@@ -188,9 +193,12 @@
     <ClInclude Include="macros.h" />
     <ClInclude Include="math\math.h" />
     <ClInclude Include="math\matrix.h" />
+    <ClInclude Include="math\quaternion.h" />
+    <ClInclude Include="math\rotator.h" />
     <ClInclude Include="math\vector.h" />
     <ClInclude Include="object.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="screen_component.h" />
     <ClInclude Include="std\array.h" />
     <ClInclude Include="std\bst.h" />
     <ClInclude Include="std\node.h" />

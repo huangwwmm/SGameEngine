@@ -52,7 +52,7 @@ void FDebug::Assert(const char *message) const
 	MultiByteToWideChar(CP_ACP
 		, 0
 		, message
-		, strlen(message) + 1
+		, static_cast<int>(strlen(message)) + 1
 		, message_wchar
 		, sizeof(message_wchar) / sizeof(message_wchar[0]));
 

@@ -1,5 +1,8 @@
 #pragma once
 #include "math.h"
+#include "quaternion.h"
+
+struct FQuaternion;
 
 // All rotation values are stored in degrees.
 __declspec(align(16)) struct FRotator
@@ -16,8 +19,16 @@ public:
 	float roll;
 
 public:
+	// Clamps an angle to the range of [0, 360).
+	__forceinline static float ClampAxis(float angle);
+	// Clamps an angle to the range of (-180, 180].
+	__forceinline static float NormalizeAxis(float angle);
+
+public:
+	__forceinline FRotator();
 	__forceinline FRotator(float pitch, float yaw, float roll);
 	explicit __forceinline FRotator(float *arr);
+	explicit FRotator(const FQuaternion &quaternion);
 
 	__forceinline FRotator operator+(const FRotator &rot) const;
 	__forceinline FRotator operator-(const FRotator &rot) const;
@@ -35,7 +46,38 @@ public:
 	__forceinline void Set(float *arr);
 };
 
-const FRotator FRotator::kZero(0.0f, 0.0f, 0.0f);
+__forceinline float FRotator::ClampAxis(float angle)
+{
+	// returns Angle in the range (-360,360)
+	angle = FMath::Fmod(angle, 360.f);
+
+	if (angle < 0.f)
+	{
+		// shift to [0,360) range
+		angle += 360.f;
+	}
+
+	return angle;
+}
+
+__forceinline float FRotator::NormalizeAxis(float angle)
+{
+	// returns Angle in the range [0,360)
+	angle = ClampAxis(angle);
+
+	if (angle > 180.f)
+	{
+		// shift to (-180,180]
+		angle -= 360.f;
+	}
+
+	return angle;
+}
+
+__forceinline FRotator::FRotator()
+{
+	memset(this, 0, sizeof(FRotator));
+}
 
 __forceinline FRotator::FRotator(float pitch, float yaw, float roll)
 	: pitch(pitch)
@@ -46,7 +88,7 @@ __forceinline FRotator::FRotator(float pitch, float yaw, float roll)
 
 __forceinline FRotator::FRotator(float *arr)
 {
-	memcpy(this, arr, sizeof(*this));
+	memcpy(this, arr, sizeof(FRotator));
 }
 
 __forceinline FRotator FRotator::operator+(const FRotator & rot) const
@@ -150,5 +192,5 @@ __forceinline void FRotator::Set(float pitch, float yaw, float roll)
 
 __forceinline void FRotator::Set(float *arr)
 {
-	memcpy(this, arr, 16);
+	memcpy(this, arr, sizeof(FRotator));
 }
